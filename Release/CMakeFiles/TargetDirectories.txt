@@ -1,0 +1,13 @@
+C:/Users/Twister/Projects/cpp/cgproject/Release/CMakeFiles/imgstudio.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/CMakeFiles/gui.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/CMakeFiles/gui_test.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/nanovg/CMakeFiles/nanovg.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/nanovg/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/nanovg/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/osdialog/CMakeFiles/osdialog.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/osdialog/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/Release/GUI/osdialog/CMakeFiles/rebuild_cache.dir

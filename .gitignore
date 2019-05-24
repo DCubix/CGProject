@@ -1,0 +1,7 @@
+.vs/
+.vscode/
+build/
+*.exe
+*.user
+*.lib
+*.a
