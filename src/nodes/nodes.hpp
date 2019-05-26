@@ -21,8 +21,8 @@ public:
 class ImageNode : public Node {
 public:
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(image.width() * x);
-		int iy = int(image.height() * y);
+		int ix = int((image.width()+0.5f) * x);
+		int iy = int((image.height()+0.5f) * y);
 		return image.get(ix, iy);
 	}
 
@@ -70,8 +70,8 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(in.width() * x);
-		int iy = int(in.height() * y);
+		int ix = int((in.width()+0.5f) * x);
+		int iy = int((in.height()+0.5f) * y);
 		float lm = luma(color(0));
 		if (!locallyAdaptive) {
 			float g = lm >= threshold ? 1.0f : 0.0f;
@@ -107,8 +107,8 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(in.width() * x);
-		int iy = int(in.height() * y);
+		int ix = int((in.width()+0.5f) * x);
+		int iy = int((in.height()+0.5f) * y);
 		Color maxValue;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
@@ -136,8 +136,8 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(in.width() * x);
-		int iy = int(in.height() * y);
+		int ix = int((in.width()+0.5f) * x);
+		int iy = int((in.height()+0.5f) * y);
 		Color minValue;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
@@ -184,17 +184,16 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(in.width() * x);
-		int iy = int(in.height() * y);
+		int ix = int((in.width()+0.5f) * x);
+		int iy = int((in.height()+0.5f) * y);
 		const int w = 3;
 		const int mean = w / 2;
 
-		Color sum = color(0);
+		Color sum = { 0.0f, 0.0f, 0.0f, 1.0f };
 		for (int n = -mean; n <= mean; n++) {
 			for (int m = -mean; m <= mean; m++) {
-				if (n == 0 && m == 0) continue;
 				Color col = in.get(ix + n, iy + m);
-				float kv = KERNEL[int(filter)][(n + mean) + (m + mean) * w];
+				float kv = KERNEL[int(filter) - 1][(n + mean) + (m + mean) * w];
 				sum.r += col.r * kv;
 				sum.g += col.g * kv;
 				sum.b += col.b * kv;
@@ -216,8 +215,8 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int(in.width() * x);
-		int iy = int(in.height() * y);
+		int ix = int((in.width()+0.5f) * x);
+		int iy = int((in.height()+0.5f) * y);
 
 		std::vector<Color> v;
 		const int m = int(size) / 2;

@@ -146,6 +146,7 @@ PixelData NodeSystem::process(const PixelData& in) {
 	PixelData out(in.width(), in.height());
 
 	auto conns = getConnectionsLastToFirst(0);
+	m_imgIn = nullptr;
 
 	//#pragma omp parallel for schedule(dynamic)
 	for (int y = 0; y < in.height(); y++) {
@@ -196,11 +197,9 @@ void NodeSystem::process(const PixelData& in, PixelData& out, float x, float y, 
 
 		if (!src->m_solved) {
 			if (src->type() == NodeType::Image) {
-				src->m_lastSample = src->process(((ImageNode*) src)->image, x, y);
-			} else {
-				src->m_lastSample = src->process(in, x, y);
+				m_imgIn = &((ImageNode*) src)->image;
 			}
-
+			src->m_lastSample = src->process(m_imgIn == nullptr ? in : *m_imgIn, x, y);
 			src->m_solved = true;
 		}
 		dest->param(conn->destParam).value = src->m_lastSample;

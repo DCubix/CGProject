@@ -142,6 +142,7 @@ private:
 	std::vector<unsigned int> m_usedNodes;
 
 	std::mutex m_lock;
+	PixelData* m_imgIn;
 
 	void process(const PixelData& in, PixelData& out, float x, float y, const std::vector<unsigned int>& conns);
 };
