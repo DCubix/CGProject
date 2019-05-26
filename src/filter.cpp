@@ -15,15 +15,12 @@ Color Filter::convolute(const PixelData& in, const std::vector<float>& kernel, i
 	Color sum = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for (int n = -mean; n <= mean; n++) {
 		for (int m = -mean; m <= mean; m++) {
-			auto col = in.get(x + n, y + m);
-			if (col.has_value()) {
-				Color color = col.value();
-				float kv = kernel[(n + mean) + (m + mean) * w];
-				sum.r += color.r * kv;
-				sum.g += color.g * kv;
-				sum.b += color.b * kv;
-				sum.a = color.a;
-			}
+			Color color = in.get(x + n, y + m);
+			float kv = kernel[(n + mean) + (m + mean) * w];
+			sum.r += color.r * kv;
+			sum.g += color.g * kv;
+			sum.b += color.b * kv;
+			sum.a = color.a;
 		}
 	}
 	return sum;
@@ -35,7 +32,7 @@ PixelData FilterStack::apply(const PixelData& in) {
 	auto clk = BEGIN_BENCH;
 	for (int y = 0; y < in.height(); y++) {
 		for (int x = 0; x < in.width(); x++) {
-			Color col = in.get(x, y).value();
+			Color col = in.get(x, y);
 			out.set(x, y, col.r, col.g, col.b, col.a);
 		}
 	}
@@ -55,7 +52,7 @@ PixelData FilterStack::applyRegion(const PixelData& in, int rx, int ry, int rw, 
 	PixelData out(in.width(), in.height());
 	for (int y = 0; y < in.height(); y++) {
 		for (int x = 0; x < in.width(); x++) {
-			Color col = in.get(x, y).value();
+			Color col = in.get(x, y);
 			out.set(x, y, col.r, col.g, col.b, col.a);
 		}
 	}
@@ -78,8 +75,7 @@ PixelData FilterStack::apply(Filter* filter, const PixelData& in, int rx, int ry
 			if (x > rx && x < rx + rw && y > ry && y < ry + rh) {
 				filter->process(in, out, x, y);
 			} else {
-				const Color def = { 0.0f, 0.0f, 0.0f, 1.0f };
-				auto col = in.get(x, y).value_or(def);
+				Color col = in.get(x, y);
 				out.set(x, y, col.r, col.g, col.b, col.a);
 			}
 		}

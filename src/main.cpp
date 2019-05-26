@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#include <memory>
 
 #include "widgets/check.h"
 #include "widgets/label.h"
@@ -12,13 +13,35 @@
 
 #include "osdialog/OsDialog.hpp"
 
+#include "image.h"
 #include "application.h"
+#include "nodes/node_logic.h"
+#include "nodes/nodes.hpp"
 
 namespace fs = std::filesystem;
 
 class App : public Application {
 public:
 	void onBuild(GUI* gui) override {
+		sys = std::make_unique<NodeSystem>();
+		auto cn = sys->create<ColorNode>();
+		auto in = sys->create<ImageNode>();
+		auto mn = sys->create<MultiplyNode>();
+		auto md = sys->create<MedianNode>();
+
+		auto imo = sys->get<ImageNode>(in);
+		imo->image = PixelData("test.jpg");
+
+		auto cno = sys->get<ColorNode>(cn);
+		cno->color = { 0.9f, 0.5f, 0.2f, 1.0f };
+		sys->connect(in, md, 0);
+		sys->connect(cn, mn, 0);
+		sys->connect(md, mn, 1);
+		sys->connect(mn, 0, 0);
+
+		auto img = sys->process(imo->image);
+		stbi_write_png("tst.png", img.width(), img.height(), 4, img.data().data(), 4 * img.width());
+
 		gui->load(
 					#include "ui.h"
 		);
@@ -94,7 +117,7 @@ public:
 				dataB = PixelData(dataA.width(), dataA.height());
 				for (int y = 0; y < dataB.height(); y++) {
 					for (int x = 0; x < dataB.width(); x++) {
-						Color c = dataA.get(x, y).value();
+						Color c = dataA.get(x, y);
 						dataB.set(x, y, c.r, c.g, c.b, c.a);
 					}
 				}
@@ -121,7 +144,7 @@ public:
 				dataA = PixelData(dataB.width(), dataB.height());
 				for (int y = 0; y < dataA.height(); y++) {
 					for (int x = 0; x < dataA.width(); x++) {
-						Color c = dataB.get(x, y).value();
+						Color c = dataB.get(x, y);
 						dataA.set(x, y, c.r, c.g, c.b, c.a);
 					}
 				}
@@ -249,7 +272,7 @@ public:
 
 		btnSave->onClick([=](int btn, int x, int y) {
 			auto ret = osd::Dialog::file(
-						osd::DialogAction::OpenFile,
+						osd::DialogAction::SaveFile,
 						".",
 						osd::Filters("Imagem PNG:png")
 			);
@@ -260,6 +283,8 @@ public:
 		});
 	}
 
+	std::unique_ptr<NodeSystem> sys;
+
 	std::unique_ptr<Filter> median, dilation, erosion, threshold, edge, box, blur;
 
 	PixelData dataA, dataB;
@@ -268,6 +293,6 @@ public:
 };
 
 int main(int argc, char** argv) {
-
 	return App().run("Image Studio");
+	//return 0;
 }

@@ -14,7 +14,7 @@ namespace filters {
 	class DilationFilter : public Filter {
 	public:
 		inline virtual void process(const PixelData& in, PixelData& out, int x, int y) override {
-			const float lm = luma(in.get(x, y).value());
+			const float lm = luma(in.get(x, y));
 			if (lm >= 0.99f) {
 				out.set(x, y, 1.0f, 1.0f, 1.0f, 1.0f);
 				out.set(x - 1, y, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -43,13 +43,12 @@ namespace filters {
 	class ErosionFilter : public Filter {
 	public:
 		inline virtual void process(const PixelData& in, PixelData& out, int x, int y) override {
-			const Color def = { 0.0f, 0.0f, 0.0f, 1.0f };
 			const float sum
-					= luma(in.get(x - 1, y).value_or(def))
-					+ luma(in.get(x + 1, y).value_or(def))
-					+ luma(in.get(x, y - 1).value_or(def))
-					+ luma(in.get(x, y + 1).value_or(def));
-			if (luma(in.get(x, y).value()) >= 0.99f && sum < 4.0f) {
+					= luma(in.get(x - 1, y))
+					+ luma(in.get(x + 1, y))
+					+ luma(in.get(x, y - 1))
+					+ luma(in.get(x, y + 1));
+			if (luma(in.get(x, y)) >= 0.99f && sum < 4.0f) {
 				out.set(x, y, 0.0f, 0.0f, 0.0f, 1.0f);
 			}
 		}
@@ -65,8 +64,8 @@ namespace filters {
 
 			for (int ky = -m; ky <= m; ky++) {
 				for (int kx = -m; kx <= m; kx++) {
-					auto col = in.get(kx + x, ky + y);
-					if (col.has_value()) v.push_back(col.value());
+					Color col = in.get(kx + x, ky + y);
+					v.push_back(col);
 				}
 			}
 
@@ -90,7 +89,7 @@ namespace filters {
 	class ThresholdFilter : public Filter {
 	public:
 		inline virtual void process(const PixelData& in, PixelData& out, int x, int y) override {
-			float lm = luma(in.get(x, y).value());
+			float lm = luma(in.get(x, y));
 			if (!m_locallyAdaptive) {
 				float g = lm >= m_threshold ? 1.0f : 0.0f;
 				out.set(x, y, g, g, g, 1.0f);
@@ -99,10 +98,8 @@ namespace filters {
 				float sum = 0.0f;
 				for (int ky = -m; ky <= m; ky++) {
 					for (int kx = -m; kx <= m; kx++) {
-						auto col = in.get(kx + x, ky + y);
-						if (col.has_value()) {
-							sum += luma(col.value());
-						}
+						Color col = in.get(kx + x, ky + y);
+						sum += luma(col);
 					}
 				}
 				sum /= (m_regionSize * m_regionSize);

@@ -10,6 +10,10 @@ file(GLOB SRC
 	"src/*.c"
 	"src/*.cpp"
 	"src/*.hpp"
+
+	"src/nodes/*.h"
+	"src/nodes/*.cpp"
+	"src/nodes/*.hpp"
 )
 
 find_package(OpenMP REQUIRED)

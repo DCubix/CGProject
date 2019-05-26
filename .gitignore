@@ -5,3 +5,5 @@ build/
 *.user
 *.lib
 *.a
+Release/
+Debug/
