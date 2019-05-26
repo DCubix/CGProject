@@ -1,6 +1,7 @@
 #include "node_logic.h"
 
 #include <numeric>
+#include "nodes.hpp"
 
 void Node::addParam(const std::string& name) {
 	m_paramNames.push_back(name);
@@ -144,16 +145,35 @@ std::vector<unsigned int> NodeSystem::getAllConnections(unsigned int node) {
 PixelData NodeSystem::process(const PixelData& in) {
 	PixelData out(in.width(), in.height());
 
+	auto conns = getConnectionsLastToFirst(0);
+
 	//#pragma omp parallel for schedule(dynamic)
 	for (int y = 0; y < in.height(); y++) {
 		for (int x = 0; x < in.width(); x++) {
-			process(in, out, x, y);
+			float fx = float(x) / in.width();
+			float fy = float(y) / in.height();
+			process(in, out, fx, fy, conns);
 		}
 	}
+
 	return out;
 }
 
-void NodeSystem::process(const PixelData& in, PixelData& out, int x, int y) {
+std::vector<unsigned int> NodeSystem::getConnectionsLastToFirst(unsigned int start) {
+	std::vector<unsigned int> conns;
+	for (int i = 0; i < get<Node>(start)->paramCount(); i++) {
+		auto cs = getConnections(start, i);
+		conns.insert(conns.end(), cs.begin(), cs.end());
+		for (unsigned int cid : cs) {
+			auto conn = getConnection(cid);
+			auto rt = getConnectionsLastToFirst(conn->src);
+			conns.insert(conns.end(), rt.begin(), rt.end());
+		}
+	}
+	return conns;
+}
+
+void NodeSystem::process(const PixelData& in, PixelData& out, float x, float y, const std::vector<unsigned int>& conns) {
 	// Reset
 	for (auto&& nid : m_usedNodes) {
 		auto& node = m_nodes[nid];
@@ -162,7 +182,7 @@ void NodeSystem::process(const PixelData& in, PixelData& out, int x, int y) {
 
 	int i = 0;
 	std::vector<int> toRemove;
-	for (auto&& cid : m_usedConnections) {
+	for (auto&& cid : conns) {
 		auto& conn = m_connections[cid];
 		// Cleanup
 		Node* src = get<Node>(conn->src);
@@ -175,14 +195,19 @@ void NodeSystem::process(const PixelData& in, PixelData& out, int x, int y) {
 		//
 
 		if (!src->m_solved) {
-			src->m_lastSample = src->process(in, x, y);
+			if (src->type() == NodeType::Image) {
+				src->m_lastSample = src->process(((ImageNode*) src)->image, x, y);
+			} else {
+				src->m_lastSample = src->process(in, x, y);
+			}
+
 			src->m_solved = true;
 		}
 		dest->param(conn->destParam).value = src->m_lastSample;
 
 		if (dest->type() == NodeType::Output && !dest->m_solved) {
 			Color col = dest->process(in, x, y);
-			out.set(x, y, col.r, col.g, col.b, col.a);
+			out.set(int(out.width() * x), int(out.height() * y), col.r, col.g, col.b, col.a);
 			dest->m_solved = true;
 		}
 	}

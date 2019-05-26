@@ -126,6 +126,14 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 3, 0.8f);
 			renderer.pushClipping(nx + 1, ny + 1, NodeWidth - 2, gnode.height - 2);
 			renderer.rect(nx + 1, ny + 1, NodeWidth - 2, 16, 0, 0, 0, 80, true);
+			if (node->type() == NodeType::Color) {
+				ColorNode* n = (ColorNode*) node;
+				renderer.rect(nx + 4, ny + 20, 16, 16,
+							  n->color.r * 255.0f,
+							  n->color.g * 255.0f,
+							  n->color.b * 255.0f,
+							  255, true);
+			}
 
 			std::string txt = "";
 			switch (node->type()) {

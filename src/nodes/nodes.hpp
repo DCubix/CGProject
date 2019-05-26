@@ -9,7 +9,7 @@ inline static float luma(Color col) {
 
 class ColorNode : public Node {
 public:
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
 		return color;
 	}
 
@@ -20,8 +20,10 @@ public:
 
 class ImageNode : public Node {
 public:
-	inline virtual Color process(const PixelData& in, int x, int y) override {
-		return image.get(x, y);
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(image.width() * x);
+		int iy = int(image.height() * y);
+		return image.get(ix, iy);
 	}
 
 	inline virtual NodeType type() override { return NodeType::Image; }
@@ -36,7 +38,7 @@ public:
 		addParam("B");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
 		Color na = color(0);
 		Color nb = color(1);
 		return Color{ na.r * nb.r, na.g * nb.g, na.b * nb.b, na.a * nb.a };
@@ -52,7 +54,7 @@ public:
 		addParam("B");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
 		Color na = color(0);
 		Color nb = color(1);
 		return Color{ na.r + nb.r, na.g + nb.g, na.b + nb.b, na.a + nb.a };
@@ -67,18 +69,20 @@ public:
 		addParam("A");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(in.width() * x);
+		int iy = int(in.height() * y);
 		float lm = luma(color(0));
 		if (!locallyAdaptive) {
 			float g = lm >= threshold ? 1.0f : 0.0f;
 			return Color{ g, g, g, 1.0f };
 		} else {
-			const int m = regionSize / 2;
+			const int m = int(regionSize) / 2;
 			float sum = lm;
 			for (int ky = -m; ky <= m; ky++) {
 				for (int kx = -m; kx <= m; kx++) {
 					if (kx == 0 && ky == 0) continue;
-					Color col = in.get(kx + x, ky + y);
+					Color col = in.get(kx + ix, ky + iy);
 					sum += luma(col);
 				}
 			}
@@ -92,7 +96,7 @@ public:
 	inline virtual NodeType type() override { return NodeType::Threshold; }
 
 	float threshold{ 0.5f };
-	int regionSize{ 3 };
+	float regionSize{ 3 };
 	bool locallyAdaptive{ false };
 };
 
@@ -102,12 +106,14 @@ public:
 		addParam("A");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(in.width() * x);
+		int iy = int(in.height() * y);
 		Color maxValue;
-		const int m = size / 2;
+		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
-				Color tmp = in.get(x + i, y + j);
+				Color tmp = in.get(ix + i, iy + j);
 				maxValue.r = std::max(tmp.r, maxValue.r);
 				maxValue.g = std::max(tmp.g, maxValue.g);
 				maxValue.b = std::max(tmp.b, maxValue.b);
@@ -119,7 +125,7 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Dilate; }
 
-	int size{ 3 };
+	float size{ 3 };
 
 };
 
@@ -129,12 +135,14 @@ public:
 		addParam("A");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(in.width() * x);
+		int iy = int(in.height() * y);
 		Color minValue;
-		const int m = size / 2;
+		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
-				Color tmp = in.get(x + i, y + j);
+				Color tmp = in.get(ix + i, iy + j);
 				minValue.r = std::min(tmp.r, minValue.r);
 				minValue.g = std::min(tmp.g, minValue.g);
 				minValue.b = std::min(tmp.b, minValue.b);
@@ -146,7 +154,7 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Erode; }
 
-	int size{ 3 };
+	float size{ 3 };
 };
 
 static const float KERNEL[][9] = {
@@ -175,7 +183,9 @@ public:
 		addParam("A");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(in.width() * x);
+		int iy = int(in.height() * y);
 		const int w = 3;
 		const int mean = w / 2;
 
@@ -183,7 +193,7 @@ public:
 		for (int n = -mean; n <= mean; n++) {
 			for (int m = -mean; m <= mean; m++) {
 				if (n == 0 && m == 0) continue;
-				Color col = in.get(x + n, y + m);
+				Color col = in.get(ix + n, iy + m);
 				float kv = KERNEL[int(filter)][(n + mean) + (m + mean) * w];
 				sum.r += col.r * kv;
 				sum.g += col.g * kv;
@@ -205,17 +215,20 @@ public:
 		addParam("A");
 	}
 
-	inline virtual Color process(const PixelData& in, int x, int y) override {
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		int ix = int(in.width() * x);
+		int iy = int(in.height() * y);
+
 		std::vector<Color> v;
-		const int m = size / 2;
+		const int m = int(size) / 2;
 
 		v.reserve(m * m);
 
 		for (int ky = -m; ky <= m; ky++) {
 			for (int kx = -m; kx <= m; kx++) {
-				int ix = kx + x;
-				int iy = ky + y;
-				v.push_back(in.get(ix, iy));
+				int ox = kx + ix;
+				int oy = ky + iy;
+				v.push_back(in.get(ox, oy));
 			}
 		}
 
@@ -228,7 +241,7 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Median; }
 
-	int size{ 3 };
+	float size{ 3 };
 };
 
 #endif // NODES_HPP

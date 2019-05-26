@@ -43,7 +43,7 @@ public:
 	virtual ~Node() = default;
 
 	virtual NodeType type() { return NodeType::None; }
-	virtual Color process(const PixelData& in, int x, int y) { return { }; }
+	virtual Color process(const PixelData& in, float x, float y) { return { }; }
 
 	unsigned int id() const { return m_id; }
 
@@ -71,7 +71,7 @@ class OutputNode : public Node {
 public:
 	OutputNode();
 	virtual NodeType type() override { return NodeType::Output; }
-	virtual Color process(const PixelData& in, int x, int y) override { return color(0); }
+	virtual Color process(const PixelData& in, float x, float y) override { return color(0); }
 };
 
 class NodeSystem {
@@ -133,6 +133,8 @@ public:
 	PixelData process(const PixelData& in);
 
 private:
+	std::vector<unsigned int> getConnectionsLastToFirst(unsigned int start);
+
 	std::array<std::unique_ptr<Connection>, MaxConnections> m_connections;
 	std::vector<unsigned int> m_usedConnections;
 
@@ -141,7 +143,7 @@ private:
 
 	std::mutex m_lock;
 
-	void process(const PixelData& in, PixelData& out, int x, int y);
+	void process(const PixelData& in, PixelData& out, float x, float y, const std::vector<unsigned int>& conns);
 };
 
 #endif // NODE_H
