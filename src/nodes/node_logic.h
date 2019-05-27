@@ -35,7 +35,7 @@ class Node {
 	friend class NodeSystem;
 public:
 	struct Param {
-		Color value;
+		PixelData value;
 		bool connected{ false };
 	};
 
@@ -43,16 +43,17 @@ public:
 	virtual ~Node() = default;
 
 	virtual NodeType type() { return NodeType::None; }
-	virtual Color process(const PixelData& in, float x, float y) { return { }; }
+	virtual Color process(const PixelData& in, float x, float y) { return def; }
 
 	unsigned int id() const { return m_id; }
 
 	void addParam(const std::string& name);
 	Param& param(unsigned int id);
-	Color color(unsigned int id) { return param(id).value; }
 	std::string paramName(unsigned int id);
 
 	unsigned int paramCount() const { return m_params.size(); }
+
+	PixelData process(const PixelData& in);
 
 protected:
 	const Color def = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -62,8 +63,6 @@ protected:
 
 	std::vector<Param> m_params;
 	std::vector<std::string> m_paramNames;
-
-	Color m_lastSample{ 0.0f, 0.0f, 0.0f, 1.0f };
 };
 using NodePtr = std::unique_ptr<Node>;
 
@@ -71,7 +70,6 @@ class OutputNode : public Node {
 public:
 	OutputNode();
 	virtual NodeType type() override { return NodeType::Output; }
-	virtual Color process(const PixelData& in, float x, float y) override { return color(0); }
 };
 
 class NodeSystem {
@@ -144,7 +142,6 @@ private:
 	std::mutex m_lock;
 	PixelData* m_imgIn;
 
-	void process(const PixelData& in, PixelData& out, float x, float y, const std::vector<unsigned int>& conns);
 };
 
 #endif // NODE_H

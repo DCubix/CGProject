@@ -39,8 +39,16 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		Color na = color(0);
-		Color nb = color(1);
+		auto&& pa = param(0).value;
+		auto&& pb = param(1).value;
+
+		int xa = int((pa.width() + 0.5f) * x);
+		int ya = int((pa.height() + 0.5f) * y);
+		int xb = int((pb.width() + 0.5f) * x);
+		int yb = int((pb.height() + 0.5f) * y);
+
+		Color na = pa.get(xa, ya);
+		Color nb = pb.get(xb, yb);
 		return Color{ na.r * nb.r, na.g * nb.g, na.b * nb.b, na.a * nb.a };
 	}
 
@@ -55,8 +63,16 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		Color na = color(0);
-		Color nb = color(1);
+		auto&& pa = param(0).value;
+		auto&& pb = param(1).value;
+
+		int xa = int((pa.width() + 0.5f) * x);
+		int ya = int((pa.height() + 0.5f) * y);
+		int xb = int((pb.width() + 0.5f) * x);
+		int yb = int((pb.height() + 0.5f) * y);
+
+		Color na = pa.get(xa, ya);
+		Color nb = pb.get(xb, yb);
 		return Color{ na.r + nb.r, na.g + nb.g, na.b + nb.b, na.a + nb.a };
 	}
 
@@ -70,9 +86,11 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int((in.width()+0.5f) * x);
-		int iy = int((in.height()+0.5f) * y);
-		float lm = luma(color(0));
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+
+		float lm = luma(pa.get(ix, iy));
 		if (!locallyAdaptive) {
 			float g = lm >= threshold ? 1.0f : 0.0f;
 			return Color{ g, g, g, 1.0f };
@@ -107,13 +125,15 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int((in.width()+0.5f) * x);
-		int iy = int((in.height()+0.5f) * y);
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+
 		Color maxValue;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
-				Color tmp = in.get(ix + i, iy + j);
+				Color tmp = pa.get(ix + i, iy + j);
 				maxValue.r = std::max(tmp.r, maxValue.r);
 				maxValue.g = std::max(tmp.g, maxValue.g);
 				maxValue.b = std::max(tmp.b, maxValue.b);
@@ -136,13 +156,15 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int((in.width()+0.5f) * x);
-		int iy = int((in.height()+0.5f) * y);
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+		
 		Color minValue;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
-				Color tmp = in.get(ix + i, iy + j);
+				Color tmp = pa.get(ix + i, iy + j);
 				minValue.r = std::min(tmp.r, minValue.r);
 				minValue.g = std::min(tmp.g, minValue.g);
 				minValue.b = std::min(tmp.b, minValue.b);
@@ -184,15 +206,17 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int((in.width()+0.5f) * x);
-		int iy = int((in.height()+0.5f) * y);
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+		
 		const int w = 3;
 		const int mean = w / 2;
 
 		Color sum = { 0.0f, 0.0f, 0.0f, 1.0f };
 		for (int n = -mean; n <= mean; n++) {
 			for (int m = -mean; m <= mean; m++) {
-				Color col = in.get(ix + n, iy + m);
+				Color col = pa.get(ix + n, iy + m);
 				float kv = KERNEL[int(filter) - 1][(n + mean) + (m + mean) * w];
 				sum.r += col.r * kv;
 				sum.g += col.g * kv;
@@ -215,8 +239,9 @@ public:
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
-		int ix = int((in.width()+0.5f) * x);
-		int iy = int((in.height()+0.5f) * y);
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
 
 		std::vector<Color> v;
 		const int m = int(size) / 2;
@@ -227,7 +252,7 @@ public:
 			for (int kx = -m; kx <= m; kx++) {
 				int ox = kx + ix;
 				int oy = ky + iy;
-				v.push_back(in.get(ox, oy));
+				v.push_back(pa.get(ox, oy));
 			}
 		}
 

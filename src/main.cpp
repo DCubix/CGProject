@@ -25,7 +25,7 @@ class App : public Application {
 public:
 	void onBuild(GUI* gui) override {
 		gui->load(
-					#include "ui.h"
+			#include "ui.h"
 		);
 
 		Panel* pnlParams = gui->get<Panel>("pnlParams");

@@ -28,6 +28,10 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
 add_executable(${PROJECT_NAME} ${SRC})
 target_link_libraries(${PROJECT_NAME} PRIVATE gui)
 
+if (UNIX)
+	target_link_libraries(${PROJECT_NAME} PRIVATE gui stdc++fs)
+endif()
+
 if (CMAKE_DL_LIBS)
 	target_link_libraries(${PROJECT_NAME} PRIVATE 
 		${CMAKE_DL_LIBS}

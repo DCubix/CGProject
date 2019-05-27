@@ -16,6 +16,21 @@ std::string Node::paramName(unsigned int id) {
 	return m_paramNames[id];
 }
 
+PixelData Node::process(const PixelData& in) {
+	PixelData out = PixelData(in.width(), in.height());
+
+	// #pragma omp parallel for schedule(dynamic)
+	for (int k = 0; k < in.width() * in.height(); k++) {
+		int x = k % in.width();
+		int y = k / in.width();
+		float fx = float(x) / in.width();
+		float fy = float(y) / in.height();
+		Color c = process(in, fx, fy);
+		out.set(x, y, c.r, c.g, c.b, c.a);
+	}
+	return out;
+}
+
 NodeSystem::NodeSystem() {
 	create<OutputNode>();
 }
@@ -143,38 +158,12 @@ std::vector<unsigned int> NodeSystem::getAllConnections(unsigned int node) {
 }
 
 PixelData NodeSystem::process(const PixelData& in) {
-	PixelData out(in.width(), in.height());
+	PixelData out{};
 
 	auto conns = getConnectionsLastToFirst(0);
+	std::reverse(conns.begin(), conns.end());
 	m_imgIn = nullptr;
 
-	//#pragma omp parallel for schedule(dynamic)
-	for (int y = 0; y < in.height(); y++) {
-		for (int x = 0; x < in.width(); x++) {
-			float fx = float(x) / in.width();
-			float fy = float(y) / in.height();
-			process(in, out, fx, fy, conns);
-		}
-	}
-
-	return out;
-}
-
-std::vector<unsigned int> NodeSystem::getConnectionsLastToFirst(unsigned int start) {
-	std::vector<unsigned int> conns;
-	for (int i = 0; i < get<Node>(start)->paramCount(); i++) {
-		auto cs = getConnections(start, i);
-		conns.insert(conns.end(), cs.begin(), cs.end());
-		for (unsigned int cid : cs) {
-			auto conn = getConnection(cid);
-			auto rt = getConnectionsLastToFirst(conn->src);
-			conns.insert(conns.end(), rt.begin(), rt.end());
-		}
-	}
-	return conns;
-}
-
-void NodeSystem::process(const PixelData& in, PixelData& out, float x, float y, const std::vector<unsigned int>& conns) {
 	// Reset
 	for (auto&& nid : m_usedNodes) {
 		auto& node = m_nodes[nid];
@@ -199,15 +188,12 @@ void NodeSystem::process(const PixelData& in, PixelData& out, float x, float y, 
 			if (src->type() == NodeType::Image) {
 				m_imgIn = &((ImageNode*) src)->image;
 			}
-			src->m_lastSample = src->process(m_imgIn == nullptr ? in : *m_imgIn, x, y);
+			dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn);
 			src->m_solved = true;
 		}
-		dest->param(conn->destParam).value = src->m_lastSample;
 
-		if (dest->type() == NodeType::Output && !dest->m_solved) {
-			Color col = dest->process(in, x, y);
-			out.set(int(out.width() * x), int(out.height() * y), col.r, col.g, col.b, col.a);
-			dest->m_solved = true;
+		if (dest->type() == NodeType::Output) {
+			out = ((OutputNode*) dest)->param(0).value;
 		}
 	}
 
@@ -217,14 +203,30 @@ void NodeSystem::process(const PixelData& in, PixelData& out, float x, float y, 
 		std::reverse(toRemove.begin(), toRemove.end());
 		for (int idx : toRemove) {
 			auto pos = std::find(m_usedConnections.begin(), m_usedConnections.end(), idx);
-			if (pos == m_usedConnections.end()) return;
-
-			m_lock.lock();
-			m_usedConnections.erase(pos);
-			m_connections[idx].reset();
-			m_lock.unlock();
+			if (pos != m_usedConnections.end()) {
+				m_lock.lock();
+				m_usedConnections.erase(pos);
+				m_connections[idx].reset();
+				m_lock.unlock();
+			}
 		}
 	}
+
+	return out;
+}
+
+std::vector<unsigned int> NodeSystem::getConnectionsLastToFirst(unsigned int start) {
+	std::vector<unsigned int> conns;
+	for (int i = 0; i < get<Node>(start)->paramCount(); i++) {
+		auto cs = getConnections(start, i);
+		conns.insert(conns.end(), cs.begin(), cs.end());
+		for (unsigned int cid : cs) {
+			auto conn = getConnection(cid);
+			auto rt = getConnectionsLastToFirst(conn->src);
+			conns.insert(conns.end(), rt.begin(), rt.end());
+		}
+	}
+	return conns;
 }
 
 OutputNode::OutputNode() {
