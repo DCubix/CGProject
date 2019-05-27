@@ -24,9 +24,10 @@ if (OPENMP_FOUND)
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 
 add_executable(${PROJECT_NAME} ${SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE gui)
+target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
 
 if (UNIX)
 	target_link_libraries(${PROJECT_NAME} PRIVATE gui stdc++fs)
