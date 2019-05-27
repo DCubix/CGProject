@@ -27,7 +27,8 @@ enum class NodeType {
 	Dilate,
 	Erode,
 	Convolute,
-	Median
+	Median,
+	BrightnessContrast
 };
 
 class NodeSystem;
@@ -53,7 +54,7 @@ public:
 
 	unsigned int paramCount() const { return m_params.size(); }
 
-	PixelData process(const PixelData& in);
+	PixelData process(const PixelData& in, bool half);
 
 protected:
 	const Color def = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -128,7 +129,7 @@ public:
 
 	Connection* getConnection(unsigned int id) { return m_connections[id].get(); }
 
-	PixelData process(const PixelData& in);
+	PixelData process(const PixelData& in, bool half = false);
 
 private:
 	std::vector<unsigned int> getConnectionsLastToFirst(unsigned int start);

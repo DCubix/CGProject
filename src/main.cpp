@@ -39,6 +39,7 @@ public:
 		Button* btnDel = gui->get<Button>("btnDel");
 		Button* btnProc = gui->get<Button>("btnProc");
 		List* lstNodes = gui->get<List>("lstNodes");
+		Check* chkHalf = gui->get<Check>("chkHalf");
 
 		Spinner* spnWidth = gui->get<Spinner>("spnWidth");
 		Spinner* spnHeight = gui->get<Spinner>("spnHeight");
@@ -49,7 +50,29 @@ public:
 
 		NodeSystem* sys = cnv->system();
 
+		chkHalf->onChecked([=](bool v) {
+			int w = int(spnWidth->value());
+			int h = int(spnHeight->value());
+			process(imgResult, gui, w, h, v);
+		});
+
+		cnv->onConnect([=]() {
+			int w = int(spnWidth->value());
+			int h = int(spnHeight->value());
+			process(imgResult, gui, w, h, chkHalf->checked());
+		});
+
 		cnv->onSelect([=](Node* node) {
+			int w = int(spnWidth->value());
+			int h = int(spnHeight->value());
+
+			#define Proc(v) ((Widget*)v)->onRelease(processImage)
+			auto&& processImage = [=](int b, int x, int y) {
+				int w = int(spnWidth->value());
+				int h = int(spnHeight->value());
+				process(imgResult, gui, w, h, chkHalf->checked());
+			};
+
 			pnlParams->removeAll();
 			if (node) {
 				btnDel->enabled(true);
@@ -63,12 +86,14 @@ public:
 							0.0f, 1.0f, " R", true, nullptr, 0.01f
 						);
 						sr->bounds().height = 20;
+						Proc(sr);
 						pnlParams->add(sr);
 
 						Spinner* sg = gui->spinner(
 							&n->color.g,
 							0.0f, 1.0f, " G", true, nullptr, 0.01f
 						);
+						Proc(sg);
 						sg->bounds().height = 20;
 						pnlParams->add(sg);
 
@@ -76,6 +101,7 @@ public:
 							&n->color.b,
 							0.0f, 1.0f, " B", true, nullptr, 0.01f
 						);
+						Proc(sb);
 						sb->bounds().height = 20;
 						pnlParams->add(sb);
 
@@ -83,6 +109,7 @@ public:
 							&n->color.a,
 							0.0f, 1.0f, " A", true, nullptr, 0.01f
 						);
+						Proc(sa);
 						sa->bounds().height = 20;
 						pnlParams->add(sa);
 					} break;
@@ -102,6 +129,7 @@ public:
 								n->image = PixelData(ret.value());
 								spnWidth->value(n->image.width());
 								spnHeight->value(n->image.height());
+								process(imgResult, gui, w, h, chkHalf->checked()); 
 							}
 						});
 						pnlParams->add(loadImg);
@@ -112,29 +140,9 @@ public:
 							&n->threshold,
 							0.0f, 1.0f, " Limiar", true, nullptr, 0.01f
 						);
+						Proc(th);
 						th->bounds().height = 20;
 						pnlParams->add(th);
-
-						Spinner* rs = gui->spinner(
-							&n->regionSize,
-							3.0f, 9.0f, " Tam. Regiao", true, nullptr, 1
-						);
-						rs->visible(n->locallyAdaptive);
-						rs->bounds().height = 20;
-						rs->onExit();
-
-						Check* ck = gui->create<Check>();
-						ck->text("Adaptivo");
-						ck->onChecked([=](bool c) {
-							n->locallyAdaptive = c;
-							rs->visible(c);
-							rs->onExit();
-						});
-						ck->bounds().height = 20;
-						ck->checked(n->locallyAdaptive);
-
-						pnlParams->add(ck);
-						pnlParams->add(rs);
 					} break;
 					case NodeType::Dilate: {
 						DilateNode* n = (DilateNode*) node;
@@ -142,6 +150,7 @@ public:
 							&n->size,
 							3.0f, 9.0f, " Tamanho", true, nullptr, 1
 						);
+						Proc(rs);
 						rs->bounds().height = 20;
 						pnlParams->add(rs);
 					} break;
@@ -151,6 +160,7 @@ public:
 							&n->size,
 							3.0f, 9.0f, " Tamanho", true, nullptr, 1
 						);
+						Proc(rs);
 						rs->bounds().height = 20;
 						pnlParams->add(rs);
 					} break;
@@ -169,6 +179,7 @@ public:
 						rs->selected(int(n->filter) - 1);
 						rs->onSelected([=](int s) {
 							n->filter = ConvoluteNode::Filter(s + 1);
+							process(imgResult, gui, w, h, chkHalf->checked()); 
 						});
 						pnlParams->add(rs);
 					} break;
@@ -178,8 +189,27 @@ public:
 							&n->size,
 							3.0f, 13.0f, " Tamanho", true, nullptr, 1
 						);
+						Proc(rs);
 						rs->bounds().height = 20;
 						pnlParams->add(rs);
+					} break;
+					case NodeType::BrightnessContrast: {
+						BrightnessContrastNode* n = (BrightnessContrastNode*) node;
+						Spinner* bs = gui->spinner(
+							&n->brightness,
+							-1.0f, 5.0f, " Brilho", true, nullptr, 0.01f
+						);
+						Proc(bs);
+						bs->bounds().height = 20;
+						pnlParams->add(bs);
+
+						Spinner* cs = gui->spinner(
+							&n->contrast,
+							0.0f, 5.0f, " Contraste", true, nullptr, 0.1f
+						);
+						Proc(cs);
+						cs->bounds().height = 20;
+						pnlParams->add(cs);
 					} break;
 					default: break;
 				}
@@ -201,6 +231,7 @@ public:
 				case 6: cnv->create<MedianNode>(); break;
 				case 7: cnv->create<ConvoluteNode>(); break;
 				case 8: cnv->create<ThresholdNode>(); break;
+				case 9: cnv->create<BrightnessContrastNode>(); break;
 				default: break;
 			}
 		});
@@ -241,18 +272,21 @@ public:
 		btnProc->onClick([=](int btn, int x, int y) {
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
-			PixelData img = sys->process(PixelData(w, h));
-			if (result) {
-				result.reset();
-			}
-			result = std::make_unique<Image>();
-			result->load(gui->renderer(), img);
-			imgResult->image(result.get());
+			process(imgResult, gui, w, h, chkHalf->checked());
 		});
 	}
 
+	inline void process(ImageView* res, GUI* gui, int w, int h, bool half) {
+		PixelData img = cnv->system()->process(PixelData(w, h), half);
+		if (!result || (result && result->width() != img.width() || result->height() != img.height())) {
+			result.reset();
+			result = std::make_unique<Image>();
+		}
+		result->load(gui->renderer(), img);
+		res->image(result.get());
+	}
+
 	NodeCanvas* cnv;
-	PixelData dataA, dataB;
 	std::unique_ptr<Image> result;
 };
 

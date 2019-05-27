@@ -16,17 +16,22 @@ std::string Node::paramName(unsigned int id) {
 	return m_paramNames[id];
 }
 
-PixelData Node::process(const PixelData& in) {
+PixelData Node::process(const PixelData& in, bool half) {
 	PixelData out = PixelData(in.width(), in.height());
 
-	// #pragma omp parallel for schedule(dynamic)
+	#pragma omp parallel for schedule(dynamic)
 	for (int k = 0; k < in.width() * in.height(); k++) {
 		int x = k % in.width();
 		int y = k / in.width();
-		float fx = float(x) / in.width();
-		float fy = float(y) / in.height();
-		Color c = process(in, fx, fy);
-		out.set(x, y, c.r, c.g, c.b, c.a);
+		if (half && x < in.width() / 2) {
+			Color c = in.get(x, y);
+			out.set(x, y, c.r, c.g, c.b, c.a);
+		} else {
+			float fx = float(x) / in.width();
+			float fy = float(y) / in.height();
+			Color c = process(in, fx, fy);
+			out.set(x, y, c.r, c.g, c.b, c.a);
+		}
 	}
 	return out;
 }
@@ -157,7 +162,7 @@ std::vector<unsigned int> NodeSystem::getAllConnections(unsigned int node) {
 	return res;
 }
 
-PixelData NodeSystem::process(const PixelData& in) {
+PixelData NodeSystem::process(const PixelData& in, bool half) {
 	PixelData out{};
 
 	auto conns = getConnectionsLastToFirst(0);
@@ -188,7 +193,7 @@ PixelData NodeSystem::process(const PixelData& in) {
 			if (src->type() == NodeType::Image) {
 				m_imgIn = &((ImageNode*) src)->image;
 			}
-			dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn);
+			dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn, half);
 			src->m_solved = true;
 		}
 

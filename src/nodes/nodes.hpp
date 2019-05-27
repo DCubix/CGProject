@@ -129,24 +129,23 @@ public:
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
 
-		Color maxValue;
+		std::vector<Color> v;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
 				Color tmp = pa.get(ix + i, iy + j);
-				maxValue.r = std::max(tmp.r, maxValue.r);
-				maxValue.g = std::max(tmp.g, maxValue.g);
-				maxValue.b = std::max(tmp.b, maxValue.b);
-				maxValue.a = tmp.a;
+				v.push_back(tmp);
 			}
 		}
-		return maxValue;
+
+		return *std::min_element(v.begin(), v.end(), [](const Color& a, const Color& b) {
+			return luma(a) > luma(b);
+		});
 	}
 
 	inline virtual NodeType type() override { return NodeType::Dilate; }
 
 	float size{ 3 };
-
 };
 
 class ErodeNode : public Node {
@@ -160,18 +159,18 @@ public:
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
 		
-		Color minValue;
+		std::vector<Color> v;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
 				Color tmp = pa.get(ix + i, iy + j);
-				minValue.r = std::min(tmp.r, minValue.r);
-				minValue.g = std::min(tmp.g, minValue.g);
-				minValue.b = std::min(tmp.b, minValue.b);
-				minValue.a = tmp.a;
+				v.push_back(tmp);
 			}
 		}
-		return minValue;
+
+		return *std::max_element(v.begin(), v.end(), [](const Color& a, const Color& b) {
+			return luma(a) > luma(b);
+		});
 	}
 
 	inline virtual NodeType type() override { return NodeType::Erode; }
@@ -266,6 +265,31 @@ public:
 	inline virtual NodeType type() override { return NodeType::Median; }
 
 	float size{ 3 };
+};
+
+class BrightnessContrastNode : public Node {
+public:
+	inline BrightnessContrastNode() {
+		addParam("A");
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+
+		Color na = pa.get(ix, iy);
+		return {
+			std::clamp(na.r * contrast + brightness, 0.0f, 1.0f),
+			std::clamp(na.g * contrast + brightness, 0.0f, 1.0f),
+			std::clamp(na.b * contrast + brightness, 0.0f, 1.0f),
+			na.a
+		};
+	}
+
+	inline virtual NodeType type() override { return NodeType::BrightnessContrast; }
+
+	float brightness{ 0.0f }, contrast{ 1.0f };
 };
 
 #endif // NODES_HPP

@@ -128,7 +128,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			renderer.rect(nx + 1, ny + 1, NodeWidth - 2, 16, 0, 0, 0, 80, true);
 			if (node->type() == NodeType::Color) {
 				ColorNode* n = (ColorNode*) node;
-				renderer.rect(nx + 4, ny + 20, 16, 16,
+				renderer.rect(nx + 4, ny + 20, 16, 12,
 							  n->color.r * 255.0f,
 							  n->color.g * 255.0f,
 							  n->color.b * 255.0f,
@@ -147,6 +147,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Convolute: txt = "Convoluir"; break;
 				case NodeType::Threshold: txt = "Limiar"; break;
 				case NodeType::Image: txt = "Imagem"; break;
+				case NodeType::BrightnessContrast: txt = "Brlh./Ctr."; break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);
