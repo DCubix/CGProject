@@ -1,6 +1,8 @@
 #include "node_logic.h"
 
+#include <iostream>
 #include <numeric>
+
 #include "nodes.hpp"
 
 void Node::addParam(const std::string& name) {
@@ -40,19 +42,109 @@ NodeSystem::NodeSystem() {
 	create<OutputNode>();
 }
 
+NodeSystem::~NodeSystem() {
+	if (m_ctx) {
+		m_timerThread.~thread();
+		Cap_releaseContext(m_ctx);
+	}
+}
+
+void NodeSystem::startCapture() {
+	// Initialize WebCam if available
+	m_ctx = Cap_createContext();
+	if (m_ctx) {
+		int dID = 0;
+		int fID = 0;
+		for(int device = 0; device < Cap_getDeviceCount(m_ctx); device++) {
+			std::string deviceName = Cap_getDeviceName(m_ctx, device);
+			std::cout << device << ") " << deviceName << std::endl;
+			for(int format = 0; format < Cap_getNumFormats(m_ctx, device); format++) {
+				CapFormatInfo finfo;
+				Cap_getFormatInfo(m_ctx, device, format, &finfo);
+
+				std::string fourcc{};
+				for(uint32_t i = 0; i < 4; i++) {
+					fourcc += (char)(finfo.fourcc & 0xFF);
+					finfo.fourcc >>= 8;
+				}
+
+				std::cout << "\t" << finfo.width << "x" << finfo.height << " " << fourcc << " " << finfo.fps << "fps" << std::endl;
+
+				if (finfo.width == 320 && finfo.height == 240) {
+					dID = device;
+					fID = format;
+				}
+			}
+		}
+
+		m_streamID = Cap_openStream(m_ctx, dID, fID);
+		if (m_streamID != -1) {
+			Cap_getFormatInfo(m_ctx, dID, fID, &m_capInfo);
+			m_lastCamFrame = PixelData(m_capInfo.width, m_capInfo.height);
+
+			// Start capturing frames
+			m_timerThread = std::thread([](CapContext ctx, int stream, NodeSystem* sys) {
+				while (true) {
+					if (Cap_hasNewFrame(ctx, stream) == 1) {
+						std::vector<unsigned char> pixels;
+						pixels.resize(sys->cameraFrame().width() * sys->cameraFrame().height() * 3);
+						Cap_captureFrame(ctx, stream, &pixels[0], pixels.size());
+
+						for (int k = 0; k < pixels.size() / 3; k++) {
+							int x = k % sys->cameraFrame().width();
+							int y = k / sys->cameraFrame().width();
+							int j = k * 3;
+							sys->cameraFrame().set(
+								x, y,
+								float(pixels[j + 0]) / 255.0f,
+								float(pixels[j + 1]) / 255.0f,
+								float(pixels[j + 2]) / 255.0f,
+								1.0f
+							);
+						}
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 10));
+				}
+			}, m_ctx, m_streamID, this);
+			m_timerThread.detach();
+			m_capturing = true;
+		}
+	}
+}
+
+void NodeSystem::stopCapture() {
+	if (m_ctx) {
+		m_timerThread.~thread();
+		Cap_releaseContext(m_ctx);
+		m_capturing = false;
+	}
+}
+
 void NodeSystem::destroy(unsigned int id) {
 	auto pos = std::find(m_usedNodes.begin(), m_usedNodes.end(), id);
 	if (pos == m_usedNodes.end()) return;
 	for (unsigned int cid : getAllConnections(id)) {
 		disconnect(cid);
 	}
+
+	int cnt = 0;
+	for (auto nid : m_usedNodes) {
+		if (get<Node>(nid)->type() == NodeType::WebCam) {
+			cnt++;
+		}
+	}
+
+	if (cnt-1 < 0) {
+		stopCapture();
+	}
+
 	m_lock.lock();
 	m_usedNodes.erase(pos);
 	m_nodes[id].reset();
 	m_lock.unlock();
 }
 
-void NodeSystem::clear(int width, int height) {
+void NodeSystem::clear() {
 	m_lock.lock();
 	m_usedNodes.clear();
 	m_usedConnections.clear();
@@ -192,6 +284,8 @@ PixelData NodeSystem::process(const PixelData& in, bool half) {
 		if (!src->m_solved) {
 			if (src->type() == NodeType::Image) {
 				m_imgIn = &((ImageNode*) src)->image;
+			} else if (src->type() == NodeType::WebCam) {
+				m_imgIn = &m_lastCamFrame;
 			}
 			dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn, half);
 			src->m_solved = true;

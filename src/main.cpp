@@ -39,12 +39,12 @@ public:
 		Button* btnDel = gui->get<Button>("btnDel");
 		Button* btnProc = gui->get<Button>("btnProc");
 		List* lstNodes = gui->get<List>("lstNodes");
-		Check* chkHalf = gui->get<Check>("chkHalf");
 
-		Spinner* spnWidth = gui->get<Spinner>("spnWidth");
-		Spinner* spnHeight = gui->get<Spinner>("spnHeight");
+		chkHalf = gui->get<Check>("chkHalf");
+		spnWidth = gui->get<Spinner>("spnWidth");
+		spnHeight = gui->get<Spinner>("spnHeight");
 
-		ImageView* imgResult = gui->get<ImageView>("imgResult");
+		imgResult = gui->get<ImageView>("imgResult");
 
 		gui->get<Panel>("pnlView")->add(cnv);
 
@@ -211,6 +211,19 @@ public:
 						cs->bounds().height = 20;
 						pnlParams->add(cs);
 					} break;
+					case NodeType::Mirror: {
+						MirrorNode* n = (MirrorNode*) node;
+						Check* rs = gui->create<Check>();
+						rs->text("Vertical");
+						rs->checked(n->vertical);
+						rs->onChecked([=](bool v) {
+							n->vertical = v;
+							process(imgResult, gui, w, h, chkHalf->checked()); 
+						});
+						Proc(rs);
+						rs->bounds().height = 20;
+						pnlParams->add(rs);
+					} break;
 					default: break;
 				}
 			} else {
@@ -232,6 +245,9 @@ public:
 				case 7: cnv->create<ConvoluteNode>(); break;
 				case 8: cnv->create<ThresholdNode>(); break;
 				case 9: cnv->create<BrightnessContrastNode>(); break;
+				case 10: cnv->create<WebCamNode>(); break;
+				case 11: cnv->create<MirrorNode>(); break;
+				case 12: cnv->create<FishEyeNode>(); break;
 				default: break;
 			}
 		});
@@ -274,6 +290,7 @@ public:
 			int h = int(spnHeight->value());
 			process(imgResult, gui, w, h, chkHalf->checked());
 		});
+
 	}
 
 	inline void process(ImageView* res, GUI* gui, int w, int h, bool half) {
@@ -286,8 +303,22 @@ public:
 		res->image(result.get());
 	}
 
+	inline virtual void onTick(GUI* gui, float dt) override {
+		if (cnv->system()->capturing()) {
+			int w = int(spnWidth->value());
+			int h = int(spnHeight->value());
+			process(imgResult, gui, w, h, chkHalf->checked());
+		}
+	}
+
 	NodeCanvas* cnv;
 	std::unique_ptr<Image> result;
+	float utime{ 0.0f };
+
+	ImageView* imgResult;
+	Check* chkHalf;
+	Spinner* spnWidth;
+	Spinner* spnHeight;
 };
 
 int main(int argc, char** argv) {

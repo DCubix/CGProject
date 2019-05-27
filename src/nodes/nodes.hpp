@@ -292,4 +292,84 @@ public:
 	float brightness{ 0.0f }, contrast{ 1.0f };
 };
 
+class WebCamNode : public Node {
+public:
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = m_system->cameraFrame();
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+		return pa.get(ix, iy);
+	}
+
+	inline virtual NodeType type() override { return NodeType::WebCam; }
+};
+
+class MirrorNode : public Node {
+public:
+	inline MirrorNode() {
+		addParam("A");
+	}
+
+	inline float cyclef(float f) {
+		auto m2 = std::fmod(f, 2.0f);
+		return m2 < 1.0 ? m2 : 2 - m2;
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		float mx = cyclef(x * 2.0f) * 0.5f;
+		float my = y;
+		if (vertical) {
+			my = cyclef(y * 2.0f) * 0.5f;
+		}
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * mx);
+		int iy = int((pa.height()+0.5f) * my);
+		return pa.get(ix, iy);
+	}
+
+	inline virtual NodeType type() override { return NodeType::Mirror; }
+
+	bool vertical{ false };
+};
+
+class FishEyeNode : public Node {
+public:
+	inline FishEyeNode() {
+		addParam("A");
+	}
+
+	inline std::tuple<float, float> distort(float px, float py) {
+		float theta  = std::atan2(py, px);
+		float radius = std::sqrt(px * px + py * py);
+		radius = std::pow(radius, quant);
+		px = radius * std::cos(theta);
+		py = radius * std::sin(theta);
+		return { 0.5f * (px + 1.0f), 0.5f * (py + 1.0f) };
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+
+		float fx = x * 2.0f - 1.0f;
+		float fy = y * 2.0f - 1.0f;
+
+		auto uv = std::make_tuple(0.0f, 0.0f);
+		float d = std::sqrt(fx * fx + fy * fy);
+		if (d < 1.0f) {
+			uv = distort(fx, fy);
+		} else {
+			uv = std::make_tuple(x, y);
+		}
+
+		int ix = int((pa.width()+0.5f) * std::get<0>(uv));
+		int iy = int((pa.height()+0.5f) * std::get<1>(uv));
+		return pa.get(ix, iy);
+	}
+
+	inline virtual NodeType type() override { return NodeType::FishEye; }
+
+	float quant{ 1.0f };
+
+};
+
 #endif // NODES_HPP

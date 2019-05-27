@@ -24,6 +24,9 @@ R"(
 				<item>Convoluir</item>
 				<item>Limiar</item>
 				<item>Brilho/Contraste</item>
+				<item>WebCam</item>
+				<item>Espelhar</item>
+				<item>Olho de Peixe</item>
 			</list>
 			<panel layout="flow" height="20" background="false" padding="0" param="bottom">
 				<button name="btnAdd" text="+" width="20" />

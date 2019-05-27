@@ -10,8 +10,15 @@
 #include <algorithm>
 #include <optional>
 #include <utility>
+#include <chrono>
+#include <thread>
+#include <functional>
 
 #include "image.h"
+
+extern "C" {
+	#include "../openpnp-capture/include/openpnp-capture.h"
+}
 
 constexpr unsigned int MaxNodes = 128;
 constexpr unsigned int MaxConnections = MaxNodes * 2;
@@ -28,7 +35,10 @@ enum class NodeType {
 	Erode,
 	Convolute,
 	Median,
-	BrightnessContrast
+	BrightnessContrast,
+	WebCam,
+	Mirror,
+	FishEye
 };
 
 class NodeSystem;
@@ -64,6 +74,8 @@ protected:
 
 	std::vector<Param> m_params;
 	std::vector<std::string> m_paramNames;
+
+	NodeSystem* m_system;
 };
 using NodePtr = std::unique_ptr<Node>;
 
@@ -83,7 +95,7 @@ public:
 	};
 
 	NodeSystem();
-	~NodeSystem() = default;
+	~NodeSystem();
 
 	template <class T, typename... Args>
 	unsigned int create(Args&&... args) {
@@ -100,14 +112,19 @@ public:
 		// create node
 		T* node = new T(std::forward<Args>(args)...);
 		node->m_id = spot;
+		node->m_system = this;
 		m_nodes[spot] = std::unique_ptr<T>(node);
+
+		if (node->type() == NodeType::WebCam) {
+			startCapture();
+		}
 
 		m_lock.unlock();
 		return spot;
 	}
 
 	void destroy(unsigned int id);
-	void clear(int width, int height);
+	void clear();
 
 	template <class T>
 	T* get(unsigned int id) {
@@ -131,8 +148,20 @@ public:
 
 	PixelData process(const PixelData& in, bool half = false);
 
+	PixelData& cameraFrame() { return m_lastCamFrame; }
+
+	void setOnCapture(const std::function<void()>& cb) { m_onCapture = cb; }
+	void notifyFrameReady() { if (m_onCapture) m_onCapture(); }
+
+	bool capturing() const { return m_capturing; }
+
 private:
+	std::function<void()> m_onCapture;
+
 	std::vector<unsigned int> getConnectionsLastToFirst(unsigned int start);
+
+	void startCapture();
+	void stopCapture();
 
 	std::array<std::unique_ptr<Connection>, MaxConnections> m_connections;
 	std::vector<unsigned int> m_usedConnections;
@@ -143,6 +172,13 @@ private:
 	std::mutex m_lock;
 	PixelData* m_imgIn;
 
+	// WebCam Capture
+	CapContext m_ctx{ nullptr };
+	CapFormatInfo m_capInfo;
+	int m_streamID;
+	PixelData m_lastCamFrame;
+	std::thread m_timerThread;
+	bool m_capturing;
 };
 
 #endif // NODE_H

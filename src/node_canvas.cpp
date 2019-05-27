@@ -148,6 +148,9 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Threshold: txt = "Limiar"; break;
 				case NodeType::Image: txt = "Imagem"; break;
 				case NodeType::BrightnessContrast: txt = "Brlh./Ctr."; break;
+				case NodeType::WebCam: txt = "WebCam"; break;
+				case NodeType::Mirror: txt = "Espelhar"; break;
+				case NodeType::FishEye: txt = "O. Peixe"; break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);
