@@ -56,7 +56,9 @@ public:
 	virtual ~Node() = default;
 
 	virtual NodeType type() { return NodeType::None; }
+
 	virtual Color process(const PixelData& in, float x, float y) { return def; }
+	virtual PixelData gpuProcess(const PixelData& in, bool half) { return in; }
 
 	unsigned int id() const { return m_id; }
 
@@ -158,6 +160,10 @@ public:
 
 	bool capturing() const { return m_capturing; }
 
+	cl::Program& GPUProgram() { return m_program; }
+	cl::Context& CLContext() { return m_clContext; }
+	cl::CommandQueue& commandQueue() { return m_commandQueue; }
+
 private:
 	std::function<void()> m_onCapture;
 
@@ -175,10 +181,12 @@ private:
 	std::mutex m_lock;
 	PixelData* m_imgIn;
 
-	// Compute
+	// GPGPU
 	cl::Platform m_clPlatform;
 	cl::Device m_clDevice;
 	cl::Context m_clContext;
+	cl::Program m_program;
+	cl::CommandQueue m_commandQueue;
 
 	// WebCam Capture
 	CapContext m_ctx{ nullptr };

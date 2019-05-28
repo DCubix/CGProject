@@ -4,6 +4,7 @@
 #include <map>
 
 #include "node_logic.h"
+#include "kernels.hpp"
 
 inline static float luma(Color col) {
 	return col.r * 0.299f + col.g * 0.587f + col.b * 0.114f;
@@ -13,6 +14,20 @@ class ColorNode : public Node {
 public:
 	inline virtual Color process(const PixelData& in, float x, float y) override {
 		return color;
+	}
+
+	inline virtual PixelData gpuProcess(const PixelData& in, bool half) override {
+		const size_t sz = in.width() * in.height();
+		cl::Buffer result(m_system->CLContext(), CL_MEM_WRITE_ONLY, sz);
+		cl::Kernel k = cl::Kernel(m_system->GPUProgram(), "ColorNode");
+
+		float col[] = { color.r, color.g, color.b, color.a };
+		k.setArg(0, sizeof(float) * 4, col);
+		k.setArg(1, result);
+		m_system->commandQueue().enqueueNDRangeKernel(k, cl::NullRange, cl::NDRange(sz), cl::NullRange);
+		m_system->commandQueue().finish();
+
+
 	}
 
 	inline virtual NodeType type() override { return NodeType::Color; }
@@ -162,7 +177,7 @@ public:
 		auto&& pa = param(0).value;
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
-		
+
 		Color cmin = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float minLuma = 1.0f;
 		const int m = int(size) / 2;
@@ -215,7 +230,7 @@ public:
 		auto&& pa = param(0).value;
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
-		
+
 		const int w = 3;
 		const int mean = w / 2;
 

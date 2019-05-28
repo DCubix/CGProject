@@ -31,6 +31,8 @@
 #include "platformcontext.h"
 #include "scopedcomptr.h"
 
+#include <math.h>
+
 extern void _FreeMediaType(AM_MEDIA_TYPE& mt);
 
 // Delete a media type structure that was allocated on the heap.
@@ -90,7 +92,7 @@ HRESULT __stdcall StreamCallbackHandler::SampleCB(double time, IMediaSample* sam
     if ((sample->GetPointer(&ptr) == S_OK) && (m_stream != nullptr))
     {
         m_stream->submitBuffer(ptr, bytes);
-    
+
     }
     //sample->Release(); //who owns the IMediaSample ?!?
     return S_OK;
@@ -102,7 +104,7 @@ HRESULT __stdcall StreamCallbackHandler::SampleCB(double time, IMediaSample* sam
 //   PlatformStream
 // **********************************************************************
 
-PlatformStream::PlatformStream() : 
+PlatformStream::PlatformStream() :
     Stream(),
     m_graph(nullptr),
     m_control(nullptr),
@@ -162,11 +164,11 @@ void PlatformStream::close()
     m_width = 0;
     m_height = 0;
     m_frameBuffer.resize(0);
-    m_isOpen = false;    
+    m_isOpen = false;
 }
 
 
-bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
+bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
     uint32_t fourCC, uint32_t fps)
 {
     if (m_isOpen)
@@ -177,7 +179,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 
     if (owner == nullptr)
     {
-        LOG(LOG_ERR,"open() was with owner=NULL!\n");        
+        LOG(LOG_ERR,"open() was with owner=NULL!\n");
         return false;
     }
 
@@ -197,7 +199,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     m_owner = owner;
     m_frames = 0;
     m_width = 0;
-    m_height = 0;    
+    m_height = 0;
 
     // Create the filter graph object.
     HRESULT hr = CoCreateInstance (CLSID_FilterGraph, NULL, CLSCTX_INPROC, IID_IFilterGraph2, (void **) &m_graph);
@@ -212,13 +214,13 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 	if (FAILED(hr))
     {
         LOG(LOG_ERR,"Could not create ICaptureGraphBuilder2\n");
-        return false;        
+        return false;
     }
 
     m_capture->SetFiltergraph(m_graph);
 
     //get the controller for the graph
-	hr = m_graph->QueryInterface(IID_IMediaControl, (void**) &m_control);    
+	hr = m_graph->QueryInterface(IID_IMediaControl, (void**) &m_control);
     if (FAILED(hr))
     {
         LOG(LOG_ERR,"Could not create IMediaControl\n");
@@ -229,8 +231,8 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     if (hr != S_OK)
     {
         LOG(LOG_ERR,"Could add source filter to filter graph (HRESULT=%08X)\n", hr);
-        return false;        
-    } 
+        return false;
+    }
 
     //set the desired frame buffer format
     IAMStreamConfig *pConfig = NULL;
@@ -263,7 +265,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     {
         bool formatSet = false;
         LOG(LOG_VERBOSE, "Searching for correct frame buffer mode..\n");
-        LOG(LOG_VERBOSE, "Looking for %d %d  %s..\n", width, height, 
+        LOG(LOG_VERBOSE, "Looking for %d %d  %s..\n", width, height,
             fourCCToString(fourCC).c_str());
         // Use the video capabilities structure.
         for (int iFormat = 0; iFormat < iCount; iFormat++)
@@ -295,7 +297,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
                         break;
                     }
 
-                    LOG(LOG_VERBOSE, "  %d x %d %s\n", pVih->bmiHeader.biWidth, 
+                    LOG(LOG_VERBOSE, "  %d x %d %s\n", pVih->bmiHeader.biWidth,
                         pVih->bmiHeader.biHeight,
                         fourCCToString(format4CC).c_str());
 
@@ -303,13 +305,13 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
                         (pVih->bmiHeader.biHeight == height) &&
                         (format4CC == fourCC))
                     {
-                        streamConfig->SetFormat(pmtConfig);                        
+                        streamConfig->SetFormat(pmtConfig);
                         formatSet = true;
                         LOG(LOG_INFO, "Capture format set!\n");
                         break;
                     }
                 }
-                
+
 
                 // Delete the media type when you are done.
                 _DeleteMediaType(pmtConfig);
@@ -319,7 +321,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
         {
             LOG(LOG_ERR, "Failed to find capture format!\n");
             return false;
-        }        
+        }
     }
     else
     {
@@ -328,21 +330,21 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     }
 
 
-    // create camera control interface for exposure control etc . 
+    // create camera control interface for exposure control etc .
     m_camControl = nullptr;
-    hr = m_sourceFilter->QueryInterface(IID_IAMCameraControl, (void **)&m_camControl); 
-    if (hr != S_OK) 
+    hr = m_sourceFilter->QueryInterface(IID_IAMCameraControl, (void **)&m_camControl);
+    if (hr != S_OK)
     {
         LOG(LOG_ERR,"Could not create IAMCameraControl\n");
-        return false;  
+        return false;
     }
 
     dumpCameraProperties();
 
     // create video processing control interface
     m_videoProcAmp = nullptr;
-    hr = m_sourceFilter->QueryInterface(IID_IAMVideoProcAmp, (void **)&m_videoProcAmp); 
-    if (hr != S_OK) 
+    hr = m_sourceFilter->QueryInterface(IID_IAMVideoProcAmp, (void **)&m_videoProcAmp);
+    if (hr != S_OK)
     {
         // note: this is not an error, but in inconvenience
         LOG(LOG_WARNING,"Could not create IAMVideoProcAmp\n");
@@ -353,7 +355,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     if (hr < 0)
     {
         LOG(LOG_ERR,"Could not create sample grabber filter\n");
-        return false;        
+        return false;
     }
 
     //set mediatype on the samplegrabber
@@ -379,7 +381,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     AM_MEDIA_TYPE mt;
     memset(&mt, 0, sizeof(AM_MEDIA_TYPE));
     mt.majortype	= MEDIATYPE_Video;
-    mt.subtype		= MEDIASUBTYPE_RGB24; 
+    mt.subtype		= MEDIASUBTYPE_RGB24;
 
     hr = m_sampleGrabber->SetMediaType(&mt);
     if (hr != S_OK)
@@ -387,7 +389,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
         LOG(LOG_ERR,"Could not set the samplegrabber media type to 24-bit RGB\n");
         return false;
     }
-    
+
     //add the callback to the samplegrabber
     if (m_callbackHandler == nullptr)
     {
@@ -403,7 +405,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     {
         LOG(LOG_ERR,"Could not set callback on sample grabber (HRESULT=%08X)\n", hr);
         return false;
-    }       
+    }
 
     /* Note: Although I had expected to have to use 'PIN_CATEGORY_CAPTURE',
        using 'PIN_CATEGORY_PREVIEW' gives 30 fps at HD res on a Microsoft LifeCam 3000,
@@ -425,7 +427,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 
     // only create a valid NULL renderer in release builds!
     // FIXME: is this the behavior we actually want,
-    //        or should we use a special define to 
+    //        or should we use a special define to
     //        enable the preview window?
     #ifndef _DEBUG
     hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)(&m_nullRenderer));
@@ -435,7 +437,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     }
     else
     {
-        // we need to add the filter to the graph to be able to use it.. 
+        // we need to add the filter to the graph to be able to use it..
         hr = m_graph->AddFilter(m_nullRenderer, L"NULLRenderer");
         if (hr < 0)
         {
@@ -458,7 +460,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     {
         LOG(LOG_ERR,"Could not start the video stream (HRESULT=%08X)\n", hr);
         return false;
-    }    
+    }
 
     // look up the media type:
     AM_MEDIA_TYPE* info = new AM_MEDIA_TYPE();
@@ -475,11 +477,11 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 
             //FIXME: for now, just set the frame buffer size to
             //       width*height*3 for 24 RGB raw images
-            m_frameBuffer.resize(m_width*m_height*3);                  
+            m_frameBuffer.resize(m_width*m_height*3);
         }
-        CoTaskMemFree( info->pbFormat );        
+        CoTaskMemFree( info->pbFormat );
     }
-    free(info);	
+    free(info);
 
     LOG(LOG_INFO,"Stream to device %s opened\n", device->m_name.c_str());
 
@@ -493,14 +495,14 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     m_isOpen = true;
     dwRotRegister = 0;
 
-    #ifdef _DEBUG    
+    #ifdef _DEBUG
     //SaveGraphFile(m_graph);
     IGraphBuilder *captureGraph;
     if (SUCCEEDED(m_capture->GetFiltergraph(&captureGraph)))
     {
         hr = AddToRot(captureGraph, &dwRotRegister);
     }
-    #endif    
+    #endif
 
     return true;
 }
@@ -515,7 +517,7 @@ uint32_t PlatformStream::getFOURCC()
 {
     if (!m_isOpen) return 0;
 
-    if ((m_videoInfo.bmiHeader.biCompression == BI_RGB) || 
+    if ((m_videoInfo.bmiHeader.biCompression == BI_RGB) ||
         (m_videoInfo.bmiHeader.biCompression == BI_BITFIELDS))
     {
         //FIXME: is this the correct 4CC?
@@ -539,7 +541,7 @@ void PlatformStream::dumpCameraProperties()
             LOG(LOG_INFO, "Exposure min     : %2.3f seconds (%d integer)\n", pow(2.0f, (float)mmin), mmin);
             LOG(LOG_INFO, "Exposure max     : %2.3f seconds (%d integer)\n", pow(2.0f, (float)mmax), mmax);
             LOG(LOG_INFO, "Exposure step    : %d (integer)\n", delta);
-            LOG(LOG_INFO, "Exposure default : %2.3f seconds\n", pow(2.0f, (float)defaultValue));		
+            LOG(LOG_INFO, "Exposure default : %2.3f seconds\n", pow(2.0f, (float)defaultValue));
             LOG(LOG_INFO, "Flags            : %08X\n", flags);
         }
         else
@@ -560,7 +562,7 @@ void PlatformStream::dumpCameraProperties()
         else
         {
             LOG(LOG_INFO, "Could not get focus range information\n");
-        }        
+        }
 
         // query zoom
         if (m_camControl->GetRange(CameraControl_Zoom, &mmin, &mmax,
@@ -575,7 +577,7 @@ void PlatformStream::dumpCameraProperties()
         else
         {
             LOG(LOG_INFO, "Could not get Zoom range information\n");
-        }         
+        }
 
 #if 0
 		if (m_camControl->get_Exposure(&value, &flags) == S_OK)
@@ -587,7 +589,7 @@ void PlatformStream::dumpCameraProperties()
 		{
 			printf("Exposure info failed!\n");
 		}
-#endif       
+#endif
     }
 }
 
@@ -608,12 +610,12 @@ bool PlatformStream::getPropertyLimits(CapPropertyID propID, int32_t *emin, int3
             // use Camera control
             if (m_camControl->GetRange(gs_properties[propID].dsProp,
                     &mmin, &mmax, &delta, &defaultValue, &flags) == S_OK)
-            {   
+            {
                 *emin = mmin;
                 *emax = mmax;
                 *dValue = defaultValue;
                 return true;
-            }            
+            }
         }
         else
         {
@@ -623,9 +625,9 @@ bool PlatformStream::getPropertyLimits(CapPropertyID propID, int32_t *emin, int3
                 return false; // no VideoProcAmp on board camera
             }
 
-            if (m_videoProcAmp->GetRange(gs_properties[propID].dsProp, 
+            if (m_videoProcAmp->GetRange(gs_properties[propID].dsProp,
                 &mmin, &mmax, &delta, &defaultValue, &flags) == S_OK)
-            {   
+            {
                 *emin = mmin;
                 *emax = mmax;
                 *dValue = defaultValue;
@@ -713,14 +715,14 @@ bool PlatformStream::setAutoProperty(uint32_t propID, bool enabled)
         prop = CameraControl_Focus;
         break;
     case CAPPROPID_ZOOM:
-        prop = CameraControl_Zoom;        
+        prop = CameraControl_Zoom;
         break;
     case CAPPROPID_WHITEBALANCE:
-        prop = VideoProcAmp_WhiteBalance; 
+        prop = VideoProcAmp_WhiteBalance;
         break;
     case CAPPROPID_GAIN:
-        prop = VideoProcAmp_Gain; 
-        break;        
+        prop = VideoProcAmp_Gain;
+        break;
     default:
         return false;
     }
@@ -736,7 +738,7 @@ bool PlatformStream::setAutoProperty(uint32_t propID, bool enabled)
     else
     {
         //note: m_videoProcAmp only exists if the camera
-        //      supports hardware accelleration of 
+        //      supports hardware accelleration of
         //      video frame processing, such as
         //      white balance etc.
         if (m_videoProcAmp == nullptr)
@@ -773,17 +775,17 @@ bool PlatformStream::getDSProperty(uint32_t propID, long &value, long &flags)
     {
         if (gs_properties[propID].isCameraControl)
         {
-            // use Camera control 
+            // use Camera control
             if (FAILED(m_camControl->Get(gs_properties[propID].dsProp, &value, &flags)))
             {
                 return false;
             }
-            return true;                   
+            return true;
         }
         else
         {
             //note: m_videoProcAmp only exists if the camera
-            //      supports hardware accelleration of 
+            //      supports hardware accelleration of
             //      video frame processing, such as
             //      white balance etc.
             if (m_videoProcAmp == nullptr)
@@ -806,10 +808,10 @@ bool PlatformStream::getDSProperty(uint32_t propID, long &value, long &flags)
 /** get property (exposure, zoom etc) of camera/stream */
 bool PlatformStream::getProperty(uint32_t propID, int32_t &outValue)
 {
-    // in keeping with the documentation, we assume long here.. 
+    // in keeping with the documentation, we assume long here..
     // the DS documentation does not specify the actual bit-width
     // for the vars, but we use 32-bit ints in the capture lib
-    // so we convert to 32-bits and hope for the best.. 
+    // so we convert to 32-bits and hope for the best..
 
     long value, flags;
     if (PlatformStream::getDSProperty(propID, value, flags))
@@ -823,13 +825,13 @@ bool PlatformStream::getProperty(uint32_t propID, int32_t &outValue)
 /** get automatic state of property (exposure, zoom etc) of camera/stream */
 bool PlatformStream::getAutoProperty(uint32_t propID, bool &enabled)
 {
-    // Here, we assume that 
+    // Here, we assume that
     // CameraControl_Flags_Auto == VideoProcAmp_Flags_Auto
     // and
     // CameraControl_Flags_Manual == VideoProcAmp_Flags_Manual
     // to simplify the code.
     // We make sure this assumption is true via a static assert
-    
+
     static_assert(CameraControl_Flags_Auto == VideoProcAmp_Flags_Auto, "Boolean flags dont match - code change needed!");
     //static_assert(CameraControl_Flags_Manual == VideoProcAmp_Flags_Manual, "Boolean flags dont match - code change needed!");
 
@@ -837,7 +839,7 @@ bool PlatformStream::getAutoProperty(uint32_t propID, bool &enabled)
 
     long value, flags;
     if (PlatformStream::getDSProperty(propID, value, flags))
-    {        
+    {
         enabled = ((flags & CameraControl_Flags_Auto) != 0);
         return true;
     }
@@ -848,15 +850,15 @@ bool PlatformStream::getAutoProperty(uint32_t propID, bool &enabled)
 void PlatformStream::submitBuffer(const uint8_t *ptr, size_t bytes)
 {
     m_bufferMutex.lock();
-    
+
     if (m_frameBuffer.size() == 0)
     {
         LOG(LOG_ERR,"Stream::m_frameBuffer size is 0 - cant store frame buffers!\n");
     }
 
     // Generate warning every 100 frames if the frame buffer is not
-    // the expected size. 
-    
+    // the expected size.
+
     const uint32_t wantSize = m_width*m_height*3;
     if ((bytes != wantSize) && ((m_frames % 100) == 0))
     {
@@ -868,7 +870,7 @@ void PlatformStream::submitBuffer(const uint8_t *ptr, size_t bytes)
         // The Win32 API delivers upside-down BGR frames.
         // Conversion to regular RGB frames is done by
         // byte-reversing the buffer
-            
+
         for(size_t y=0; y<m_height; y++)
         {
             uint8_t *dst = &m_frameBuffer[(y*m_width)*3];
@@ -884,8 +886,8 @@ void PlatformStream::submitBuffer(const uint8_t *ptr, size_t bytes)
             }
         }
 
-        m_newFrame = true; 
-        m_frames++;        
+        m_newFrame = true;
+        m_frames++;
     }
 
     m_bufferMutex.unlock();
@@ -897,25 +899,25 @@ HRESULT PlatformStream::AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
     IMoniker * pMoniker = NULL;
     IRunningObjectTable *pROT = NULL;
 
-    if (FAILED(GetRunningObjectTable(0, &pROT))) 
+    if (FAILED(GetRunningObjectTable(0, &pROT)))
     {
         LOG(LOG_DEBUG,"AddToRot failed to get running object table\n");
         return E_FAIL;
     }
-    
+
     const size_t STRING_LENGTH = 256;
 
     WCHAR wsz[STRING_LENGTH];
- 
+
     StringCchPrintfW(
-        wsz, STRING_LENGTH, 
-        L"FilterGraph %08x pid %08x", 
-        (DWORD_PTR)pUnkGraph, 
+        wsz, STRING_LENGTH,
+        L"FilterGraph %08x pid %08x",
+        (DWORD_PTR)pUnkGraph,
         GetCurrentProcessId()
     );
-    
+
     HRESULT hr = CreateItemMoniker(L"!", wsz, &pMoniker);
-    if (SUCCEEDED(hr)) 
+    if (SUCCEEDED(hr))
     {
         hr = pROT->Register(ROTFLAGS_REGISTRATIONKEEPSALIVE, pUnkGraph,
             pMoniker, pdwRegister);
@@ -927,7 +929,7 @@ HRESULT PlatformStream::AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
         LOG(LOG_DEBUG,"AddToRot failed to register graph (HRESULT=%08X)\n", hr);
     }
     pROT->Release();
-    
+
     return hr;
 }
 
@@ -935,7 +937,7 @@ HRESULT PlatformStream::AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
 void PlatformStream::RemoveFromRot(DWORD pdwRegister)
 {
     IRunningObjectTable *pROT;
-    if (SUCCEEDED(GetRunningObjectTable(0, &pROT))) 
+    if (SUCCEEDED(GetRunningObjectTable(0, &pROT)))
     {
         pROT->Revoke(pdwRegister);
         pROT->Release();
@@ -944,16 +946,16 @@ void PlatformStream::RemoveFromRot(DWORD pdwRegister)
 
 HRESULT PlatformStream::SaveGraphFile(IGraphBuilder *pGraph)
 {
-    const WCHAR wszStreamName[] = L"ActiveMovieGraph"; 
+    const WCHAR wszStreamName[] = L"ActiveMovieGraph";
     const WCHAR wszPath[] = L"filtergraph.grf";
     HRESULT hr;
-    
+
     IStorage *pStorage = NULL;
     hr = StgCreateDocfile(
         wszPath,
         STGM_CREATE | STGM_TRANSACTED | STGM_READWRITE | STGM_SHARE_EXCLUSIVE,
         0, &pStorage);
-    if(FAILED(hr)) 
+    if(FAILED(hr))
     {
         return hr;
     }
@@ -963,9 +965,9 @@ HRESULT PlatformStream::SaveGraphFile(IGraphBuilder *pGraph)
         wszStreamName,
         STGM_WRITE | STGM_CREATE | STGM_SHARE_EXCLUSIVE,
         0, 0, &pStream);
-    if (FAILED(hr)) 
+    if (FAILED(hr))
     {
-        pStorage->Release();    
+        pStorage->Release();
         return hr;
     }
 
@@ -974,7 +976,7 @@ HRESULT PlatformStream::SaveGraphFile(IGraphBuilder *pGraph)
     hr = pPersist->Save(pStream, TRUE);
     pStream->Release();
     pPersist->Release();
-    if (SUCCEEDED(hr)) 
+    if (SUCCEEDED(hr))
     {
         hr = pStorage->Commit(STGC_DEFAULT);
     }

@@ -131,7 +131,7 @@ public:
 								n->image = PixelData(ret.value());
 								spnWidth->value(n->image.width());
 								spnHeight->value(n->image.height());
-								process(imgResult, gui, w, h, chkHalf->checked()); 
+								process(imgResult, gui, w, h, chkHalf->checked());
 							}
 						});
 						pnlParams->add(loadImg);
@@ -181,7 +181,7 @@ public:
 						rs->selected(int(n->filter) - 1);
 						rs->onSelected([=](int s) {
 							n->filter = ConvoluteNode::Filter(s + 1);
-							process(imgResult, gui, w, h, chkHalf->checked()); 
+							process(imgResult, gui, w, h, chkHalf->checked());
 						});
 						pnlParams->add(rs);
 					} break;
@@ -220,7 +220,7 @@ public:
 						rs->checked(n->vertical);
 						rs->onChecked([=](bool v) {
 							n->vertical = v;
-							process(imgResult, gui, w, h, chkHalf->checked()); 
+							process(imgResult, gui, w, h, chkHalf->checked());
 						});
 						Proc(rs);
 						rs->bounds().height = 20;

@@ -56,7 +56,7 @@ endif(CMAKE_BUILD_TYPE MATCHES Release)
 # add include directory
 include_directories(include)
 
-IF (WIN32)
+IF (WIN32 AND NOT MINGW)
 	# build with static runtime rather than DLL based so that we
 	# don't have to distribute it
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
@@ -80,7 +80,7 @@ IF (WIN32)
     add_library(openpnp-capture SHARED ${SOURCE})
 
     # add windows-specific test application
-    add_subdirectory(win/tests)
+    # add_subdirectory(win/tests)
 
 ELSEIF(APPLE)
     # set the platform identification string
@@ -109,9 +109,33 @@ ELSEIF(APPLE)
         )
 
     # add mac specific test application
-    add_subdirectory(mac/tests)
+    # add_subdirectory(mac/tests)
 
-ELSEIF(UNIX OR MINGW)
+ELSEIF (MINGW)
+	set(ENABLE_SHARED OFF)
+
+	# set the platform identification string
+    add_definitions(-D__PLATFORM__="Win ${COMPILERBITS}")
+
+    # remove annoying 'unsafe' function warnings
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
+    # add files for WIN32
+    set (SOURCE common/libmain.cpp
+                common/context.cpp
+                common/logging.cpp
+                common/stream.cpp
+                win/platformcontext.cpp
+                win/platformstream.cpp)
+
+    # create the library
+	add_library(openpnp-capture STATIC ${SOURCE})
+
+	target_link_libraries(openpnp-capture
+		gdi32 opengl32 strmiids ole32 oleaut32 quartz
+	)
+
+ELSEIF(UNIX)
 
     # compile libjpeg-turbo for MJPEG decoding support
     # right now, we need to disable SIMD because it
@@ -149,7 +173,7 @@ ELSEIF(UNIX OR MINGW)
     target_link_libraries(openpnp-capture turbojpeg-static)
 
     # add linux-specific test application
-    add_subdirectory(linux/tests)
+    # add_subdirectory(linux/tests)
 
 ENDIF()
 

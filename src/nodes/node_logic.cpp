@@ -62,6 +62,20 @@ NodeSystem::NodeSystem() {
 	std::cout << "OpenCL Device: " << m_clDevice.getInfo<CL_DEVICE_NAME>() << std::endl;
 
 	m_clContext = cl::Context({ m_clDevice });
+
+	cl::Program::Sources sources;
+	sources.push_back({ K_HEADER.c_str(), K_HEADER.length() });
+	sources.push_back({ K_COLOR.c_str(), K_COLOR.length() });
+	sources.push_back({ K_IMAGE.c_str(), K_IMAGE.length() });
+	sources.push_back({ K_ADD.c_str(), K_ADD.length() });
+	sources.push_back({ K_MUL.c_str(), K_MUL.length() });
+
+	m_program = cl::Program(m_clContext, sources);
+	if (m_program.build({ m_clDevice }) != CL_SUCCESS) {
+		std::cerr << "Error: " << m_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(m_clDevice) << std::endl;
+	}
+
+	m_commandQueue = cl::CommandQueue(m_clContext, m_clDevice);
 }
 
 NodeSystem::~NodeSystem() {

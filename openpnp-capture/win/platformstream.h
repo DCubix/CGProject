@@ -31,7 +31,7 @@
 
 #include <windows.h>
 #include <dshow.h>
-#include <Vidcap.h>
+// #include <Vidcap.h>
 #include <Ksmedia.h>
 
 #include <stdint.h>
@@ -124,22 +124,22 @@ public:
     PlatformStream();
     virtual ~PlatformStream();
 
-    /** Open a capture stream to a device and request a specific (internal) stream format. 
+    /** Open a capture stream to a device and request a specific (internal) stream format.
         When succesfully opened, capturing starts immediately.
     */
-    virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
+    virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
         uint32_t fourCC, uint32_t fps) override;
 
     /** Close a capture stream */
     virtual void close() override;
 
-    /** Returns true if a new frame is available for reading using 'captureFrame'. 
+    /** Returns true if a new frame is available for reading using 'captureFrame'.
         The internal new frame flag is reset by captureFrame.
     */
     bool hasNewFrame();
 
     /** Retrieve the most recently captured frame and copy it in a
-        buffer pointed to by RGBbufferPtr. The maximum buffer size 
+        buffer pointed to by RGBbufferPtr. The maximum buffer size
         must be supplied in RGBbufferBytes.
     */
     bool captureFrame(uint8_t *RGBbufferPtr, uint32_t RGBbufferBytes);
@@ -161,7 +161,7 @@ public:
 
     /** get property (exposure, zoom etc) of camera/stream */
     virtual bool getProperty(uint32_t propID, int32_t &outValue) override;
-    
+
     /** get automatic state of property (exposure, zoom etc) of camera/stream */
     virtual bool getAutoProperty(uint32_t propID, bool &enabled) override;
 
@@ -171,11 +171,11 @@ protected:
 
     /** Add the Direct show filter graph to the object list so
         GraphEdt.exe can see it - for debugging purposes only.
-        See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd390650(v=vs.85).aspx    
+        See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd390650(v=vs.85).aspx
     */
     HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
 
-    /** Remove the Direct show filter graph from the object list 
+    /** Remove the Direct show filter graph from the object list
          - for debugging purposes only. */
     void RemoveFromRot(DWORD pdwRegister);
 
