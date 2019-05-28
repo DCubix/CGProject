@@ -224,6 +224,16 @@ public:
 						rs->bounds().height = 20;
 						pnlParams->add(rs);
 					} break;
+					case NodeType::FishEye: {
+						FishEyeNode* n = (FishEyeNode*) node;
+						Spinner* rs = gui->spinner(
+							&n->quant,
+							0.0f, 4.0f, " Tamanho", true, nullptr, 0.01f
+						);
+						Proc(rs);
+						rs->bounds().height = 20;
+						pnlParams->add(rs);
+					} break;
 					default: break;
 				}
 			} else {
