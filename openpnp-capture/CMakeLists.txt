@@ -15,7 +15,7 @@ project (openpnp-capture)
 
 # make sure the libjpegturbo is compiled with the
 # position independent flag -fPIC
-IF (UNIX)
+IF (UNIX OR MINGW)
     set(POSITION_INDEPENDENT_CODE TRUE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -28,7 +28,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # force C++11 standard
 set(CMAKE_CXX_STANDARD 11)
 
-# load module that gets info from GIT 
+# load module that gets info from GIT
 # see: http://brianmilco.blogspot.nl/2012/11/cmake-automatically-use-git-tags-as.html
 include(GetGitRevisionDescription)
 
@@ -53,7 +53,7 @@ else(CMAKE_BUILD_TYPE MATCHES Release)
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 
-# add include directory 
+# add include directory
 include_directories(include)
 
 IF (WIN32)
@@ -64,7 +64,7 @@ IF (WIN32)
 
     # set the platform identification string
     add_definitions(-D__PLATFORM__="Win ${COMPILERBITS}")
-    
+
     # remove annoying 'unsafe' function warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -111,15 +111,15 @@ ELSEIF(APPLE)
     # add mac specific test application
     add_subdirectory(mac/tests)
 
-ELSEIF(UNIX)
+ELSEIF(UNIX OR MINGW)
 
     # compile libjpeg-turbo for MJPEG decoding support
     # right now, we need to disable SIMD because it
     # causes a compile problem.. we need to fix this
     # later...
-    
+
     set(ENABLE_SHARED OFF)
-    set(WITH_SIMD OFF)      
+    set(WITH_SIMD OFF)
     add_subdirectory(linux/contrib/libjpeg-turbo-dev)
 
     # set the platform identification string
@@ -136,13 +136,13 @@ ELSEIF(UNIX)
 
     # force include directories for libjpeg-turbo
     include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/linux/contrib/libjpeg-turbo-dev")
-    
+
     # create our capture library
     add_library(openpnp-capture SHARED ${SOURCE})
 
-    # add pthreads library 
+    # add pthreads library
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)    
+    find_package(Threads REQUIRED)
     target_link_libraries(openpnp-capture Threads::Threads)
 
     # add turbojpeg-static library
