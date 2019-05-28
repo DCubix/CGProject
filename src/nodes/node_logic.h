@@ -16,6 +16,8 @@
 
 #include "image.h"
 
+#include "CL/cl.hpp"
+
 extern "C" {
 	#include "../openpnp-capture/include/openpnp-capture.h"
 }
@@ -65,6 +67,7 @@ public:
 	unsigned int paramCount() const { return m_params.size(); }
 
 	PixelData process(const PixelData& in, bool half);
+	virtual void reset() {}
 
 protected:
 	const Color def = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -171,6 +174,11 @@ private:
 
 	std::mutex m_lock;
 	PixelData* m_imgIn;
+
+	// Compute
+	cl::Platform m_clPlatform;
+	cl::Device m_clDevice;
+	cl::Context m_clContext;
 
 	// WebCam Capture
 	CapContext m_ctx{ nullptr };

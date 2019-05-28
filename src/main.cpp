@@ -19,6 +19,8 @@
 #include "nodes/nodes.hpp"
 #include "node_canvas.h"
 
+#include "CL/cl.hpp"
+
 namespace fs = std::filesystem;
 
 class App : public Application {
@@ -332,6 +334,20 @@ public:
 };
 
 int main(int argc, char** argv) {
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+	if (platforms.size() == 0) {
+		std::cerr << "(P) Nenhuma instalação do OpenCL encontrada." << std::endl;
+		return 0xBADF00D;
+	}
+
+	std::vector<cl::Device> devices;
+	platforms[0].getDevices(CL_DEVICE_TYPE_ALL, &devices);
+	if (devices.size() == 0) {
+		std::cerr << "(D) Nenhuma instalação do OpenCL encontrada." << std::endl;
+		return 0xBADF00D;
+	}
+
 	return App().run("Image Studio");
 	//return 0;
 }

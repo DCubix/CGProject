@@ -1,6 +1,8 @@
 #ifndef NODES_HPP
 #define NODES_HPP
 
+#include <map>
+
 #include "node_logic.h"
 
 inline static float luma(Color col) {
@@ -129,18 +131,20 @@ public:
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
 
-		std::vector<Color> v;
+		Color cmax = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float maxLuma = 0.0f;
 		const int m = int(size) / 2;
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
 				Color tmp = pa.get(ix + i, iy + j);
-				v.push_back(tmp);
+				float l = luma(tmp);
+				if (l > maxLuma) {
+					cmax = tmp;
+					maxLuma = l;
+				}
 			}
 		}
-
-		return *std::min_element(v.begin(), v.end(), [](const Color& a, const Color& b) {
-			return luma(a) > luma(b);
-		});
+		return cmax;
 	}
 
 	inline virtual NodeType type() override { return NodeType::Dilate; }
@@ -159,18 +163,21 @@ public:
 		int ix = int((pa.width()+0.5f) * x);
 		int iy = int((pa.height()+0.5f) * y);
 		
-		std::vector<Color> v;
+		Color cmin = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float minLuma = 1.0f;
 		const int m = int(size) / 2;
+
 		for (int i = -m; i <= m; i++) {
 			for (int j = -m; j <= m; j++) {
 				Color tmp = pa.get(ix + i, iy + j);
-				v.push_back(tmp);
+				float l = luma(tmp);
+				if (l < minLuma) {
+					cmin = tmp;
+					minLuma = l;
+				}
 			}
 		}
-
-		return *std::max_element(v.begin(), v.end(), [](const Color& a, const Color& b) {
-			return luma(a) > luma(b);
-		});
+		return cmin;
 	}
 
 	inline virtual NodeType type() override { return NodeType::Erode; }
@@ -231,6 +238,21 @@ public:
 	Filter filter{ Filter::GaussianBlur };
 };
 
+static std::vector<float> histogram(const PixelData& pa) {
+	int res[256] = { 0 };
+	for (size_t hx = 0; hx < pa.width(); hx++) {
+		for (size_t hy = 0; hy < pa.height(); hy++) {
+			uint8_t g = uint8_t(luma(pa.get(hx, hy)) * 255.0f);
+			res[g]++;
+		}
+	}
+
+	std::vector<float> ret;
+	ret.resize(256);
+	for (size_t i = 0; i < ret.size(); i++) ret[i] = float(res[i]) / 255.0f;
+	return ret;
+}
+
 class MedianNode : public Node {
 public:
 	inline MedianNode() {
@@ -245,7 +267,7 @@ public:
 		std::vector<Color> v;
 		const int m = int(size) / 2;
 
-		v.reserve(m * m);
+		v.reserve(int(size) * int(size));
 
 		for (int ky = -m; ky <= m; ky++) {
 			for (int kx = -m; kx <= m; kx++) {

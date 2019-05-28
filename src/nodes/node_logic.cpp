@@ -21,6 +21,8 @@ std::string Node::paramName(unsigned int id) {
 PixelData Node::process(const PixelData& in, bool half) {
 	PixelData out = PixelData(in.width(), in.height());
 
+	reset();
+
 	#pragma omp parallel for schedule(dynamic)
 	for (int k = 0; k < in.width() * in.height(); k++) {
 		int x = k % in.width();
@@ -40,6 +42,26 @@ PixelData Node::process(const PixelData& in, bool half) {
 
 NodeSystem::NodeSystem() {
 	create<OutputNode>();
+
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+	m_clPlatform = platforms[0];
+
+	std::cout << "OpenCL Platform: " << m_clPlatform.getInfo<CL_PLATFORM_NAME>() << std::endl;
+
+	std::vector<cl::Device> devices;
+	m_clPlatform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
+	m_clDevice = devices[0];
+	for (auto& dev : devices) {
+		if (dev.getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU) { // Select GPU if available
+			m_clDevice = dev;
+			break;
+		}
+	}
+
+	std::cout << "OpenCL Device: " << m_clDevice.getInfo<CL_DEVICE_NAME>() << std::endl;
+
+	m_clContext = cl::Context({ m_clDevice });
 }
 
 NodeSystem::~NodeSystem() {
