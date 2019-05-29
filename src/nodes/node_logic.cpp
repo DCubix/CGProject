@@ -19,63 +19,71 @@ std::string Node::paramName(unsigned int id) {
 }
 
 PixelData Node::process(const PixelData& in, bool half) {
-	PixelData out = gpuProcess(in, half); //PixelData(in.width(), in.height());
-
 	reset();
 
-	// #pragma omp parallel for schedule(dynamic)
-	// for (int k = 0; k < in.width() * in.height(); k++) {
-	// 	int x = k % in.width();
-	// 	int y = k / in.width();
-	// 	if (half && x < in.width() / 2) {
-	// 		Color c = in.get(x, y);
-	// 		out.set(x, y, c.r, c.g, c.b, c.a);
-	// 	} else {
-	// 		float fx = float(x) / in.width();
-	// 		float fy = float(y) / in.height();
-	// 		Color c = process(in, fx, fy);
-	// 		out.set(x, y, c.r, c.g, c.b, c.a);
-	// 	}
+	// if (m_system->useGPU()) {
+	// 	return gpuProcess(in, half);
 	// }
+
+	PixelData out(in.width(), in.height());
+	#pragma omp parallel for schedule(dynamic)
+	for (int k = 0; k < in.width() * in.height(); k++) {
+		int x = k % in.width();
+		int y = k / in.width();
+		if (half && x < in.width() / 2) {
+			Color c = in.get(x, y);
+			out.set(x, y, c.r, c.g, c.b, c.a);
+		} else {
+			float fx = float(x) / in.width();
+			float fy = float(y) / in.height();
+			Color c = process(in, fx, fy);
+			out.set(x, y, c.r, c.g, c.b, c.a);
+		}
+	}
 	return out;
 }
 
 NodeSystem::NodeSystem() {
 	create<OutputNode>();
 
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-	m_clPlatform = platforms[0];
+	// std::vector<cl::Platform> platforms;
+	// cl::Platform::get(&platforms);
+	// if (platforms.empty()) return;
 
-	std::cout << "OpenCL Platform: " << m_clPlatform.getInfo<CL_PLATFORM_NAME>() << std::endl;
+	// m_clPlatform = platforms[0];
 
-	std::vector<cl::Device> devices;
-	m_clPlatform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-	m_clDevice = devices[0];
-	for (auto& dev : devices) {
-		if (dev.getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU) { // Select GPU if available
-			m_clDevice = dev;
-			break;
-		}
-	}
+	// std::cout << "OpenCL Platform: " << m_clPlatform.getInfo<CL_PLATFORM_NAME>() << std::endl;
 
-	std::cout << "OpenCL Device: " << m_clDevice.getInfo<CL_DEVICE_NAME>() << std::endl;
+	// std::vector<cl::Device> devices;
+	// m_clPlatform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+	// if (devices.empty()) return;
 
-	m_clContext = cl::Context({ m_clDevice });
+	// m_clDevice = devices[0];
+	// for (auto& dev : devices) {
+	// 	if (dev.getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU) { // Select GPU if available
+	// 		m_clDevice = dev;
+	// 		break;
+	// 	}
+	// }
 
-	cl::Program::Sources sources;
-	sources.push_back({ K_HEADER.c_str(), K_HEADER.length() });
-	sources.push_back({ K_COLOR.c_str(), K_COLOR.length() });
-	sources.push_back({ K_IMAGE.c_str(), K_IMAGE.length() });
-	sources.push_back({ K_ADD.c_str(), K_ADD.length() });
-	sources.push_back({ K_MUL.c_str(), K_MUL.length() });
+	// std::cout << "OpenCL Device: " << m_clDevice.getInfo<CL_DEVICE_NAME>() << std::endl;
 
-	m_program = cl::Program(m_clContext, sources);
-	if (m_program.build({ m_clDevice }) != CL_SUCCESS) {
-		std::cerr << "Error: " << m_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(m_clDevice) << std::endl;
-	}
+	// m_clContext = cl::Context({ m_clDevice });
 
-	m_commandQueue = cl::CommandQueue(m_clContext, m_clDevice);
+	// cl::Program::Sources sources;
+	// sources.push_back({ K_HEADER.c_str(), K_HEADER.length() });
+	// sources.push_back({ K_COLOR.c_str(), K_COLOR.length() });
+	// sources.push_back({ K_IMAGE.c_str(), K_IMAGE.length() });
+	// sources.push_back({ K_ADD.c_str(), K_ADD.length() });
+	// sources.push_back({ K_MUL.c_str(), K_MUL.length() });
+
+	// m_program = cl::Program(m_clContext, sources);
+	// if (m_program.build({ m_clDevice }) != CL_SUCCESS) {
+	// 	std::cerr << "Error: " << m_program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(m_clDevice) << std::endl;
+	// }
+
+	// m_commandQueue = cl::CommandQueue(m_clContext, m_clDevice);
+	// m_useGPU = true;
 }
 
 NodeSystem::~NodeSystem() {
@@ -138,6 +146,7 @@ void NodeSystem::startCapture() {
 								1.0f
 							);
 						}
+						sys->hasFrame(true);
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 10));
 				}
@@ -317,15 +326,15 @@ PixelData NodeSystem::process(const PixelData& in, bool half) {
 		i++;
 		//
 
-		if (!src->m_solved) {
-			if (src->type() == NodeType::Image) {
-				m_imgIn = &((ImageNode*) src)->image;
-			} else if (src->type() == NodeType::WebCam) {
-				m_imgIn = &m_lastCamFrame;
-			}
-			dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn, half);
-			src->m_solved = true;
+		//if (!src->m_solved) {
+		if (src->type() == NodeType::Image) {
+			m_imgIn = &((ImageNode*) src)->image;
+		} else if (src->type() == NodeType::WebCam) {
+			m_imgIn = &m_lastCamFrame;
 		}
+		dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn, half);
+		//	src->m_solved = true;
+		//}
 
 		if (dest->type() == NodeType::Output) {
 			out = ((OutputNode*) dest)->param(0).value;
@@ -346,6 +355,8 @@ PixelData NodeSystem::process(const PixelData& in, bool half) {
 			}
 		}
 	}
+
+	m_hasNewFrame = false;
 
 	return out;
 }

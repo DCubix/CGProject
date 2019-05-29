@@ -23,13 +23,14 @@ if (OPENMP_FOUND)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-find_package(OpenCL REQUIRED OpenCL)
+# find_package(OpenCL REQUIRED OpenCL)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 
 add_executable(${PROJECT_NAME} ${SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture OpenCL::OpenCL)
+# OpenCL::OpenCL
+target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
 
 if (UNIX)
 	target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)

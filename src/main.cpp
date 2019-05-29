@@ -19,8 +19,6 @@
 #include "nodes/nodes.hpp"
 #include "node_canvas.h"
 
-#include "CL/cl.hpp"
-
 namespace fs = std::filesystem;
 
 class App : public Application {
@@ -236,6 +234,36 @@ public:
 						rs->bounds().height = 20;
 						pnlParams->add(rs);
 					} break;
+					case NodeType::Add: {
+						AddNode* n = (AddNode*) node;
+						Spinner* th = gui->spinner(
+							&n->factor,
+							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+						);
+						Proc(th);
+						th->bounds().height = 20;
+						pnlParams->add(th);
+					} break;
+					case NodeType::Multiply: {
+						MultiplyNode* n = (MultiplyNode*) node;
+						Spinner* th = gui->spinner(
+							&n->factor,
+							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+						);
+						Proc(th);
+						th->bounds().height = 20;
+						pnlParams->add(th);
+					} break;
+					case NodeType::Mix: {
+						MixNode* n = (MixNode*) node;
+						Spinner* th = gui->spinner(
+							&n->factor,
+							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+						);
+						Proc(th);
+						th->bounds().height = 20;
+						pnlParams->add(th);
+					} break;
 					default: break;
 				}
 			} else {
@@ -260,6 +288,8 @@ public:
 				case 10: cnv->create<WebCamNode>(); break;
 				case 11: cnv->create<MirrorNode>(); break;
 				case 12: cnv->create<FishEyeNode>(); break;
+				case 13: cnv->create<MixNode>(); break;
+				case 14: cnv->create<InvertNode>(); break;
 				default: break;
 			}
 		});
@@ -316,7 +346,7 @@ public:
 	}
 
 	inline virtual void onTick(GUI* gui, float dt) override {
-		if (cnv->system()->capturing()) {
+		if (cnv->system()->capturing() && cnv->system()->hasFrame()) {
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
 			process(imgResult, gui, w, h, chkHalf->checked());
@@ -334,20 +364,6 @@ public:
 };
 
 int main(int argc, char** argv) {
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-	if (platforms.size() == 0) {
-		std::cerr << "(P) Nenhuma instalação do OpenCL encontrada." << std::endl;
-		return 0xBADF00D;
-	}
-
-	std::vector<cl::Device> devices;
-	platforms[0].getDevices(CL_DEVICE_TYPE_ALL, &devices);
-	if (devices.size() == 0) {
-		std::cerr << "(D) Nenhuma instalação do OpenCL encontrada." << std::endl;
-		return 0xBADF00D;
-	}
-
 	return App().run("Image Studio");
 	//return 0;
 }

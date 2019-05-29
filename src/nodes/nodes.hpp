@@ -16,21 +16,21 @@ public:
 		return color;
 	}
 
-	inline virtual PixelData gpuProcess(const PixelData& in, bool half) override {
-		const size_t sz = in.width() * in.height();
-		cl::Buffer result(m_system->CLContext(), CL_MEM_WRITE_ONLY, sz);
-		cl::Kernel k = cl::Kernel(m_system->GPUProgram(), "ColorNode");
+	// inline virtual PixelData gpuProcess(const PixelData& in, bool half) override {
+	// 	const size_t sz = in.width() * in.height();
+	// 	cl::Buffer result(m_system->context(), CL_MEM_WRITE_ONLY, sz);
+	// 	cl::Kernel k = cl::Kernel(m_system->program(), "ColorNode");
 
-		float col[] = { color.r, color.g, color.b, color.a };
-		k.setArg(0, sizeof(float) * 4, col);
-		k.setArg(1, result);
-		m_system->commandQueue().enqueueNDRangeKernel(k, cl::NullRange, cl::NDRange(sz), cl::NullRange);
-		m_system->commandQueue().finish();
+	// 	float col[] = { color.r, color.g, color.b, color.a };
+	// 	k.setArg(0, sizeof(float) * 4, col);
+	// 	k.setArg(1, result);
+	// 	m_system->queue().enqueueNDRangeKernel(k, cl::NullRange, cl::NDRange(sz), cl::NullRange);
+	// 	m_system->queue().finish();
 
-		PixelData out(in.width(), in.height());
-		m_system->commandQueue().enqueueReadBuffer(result, CL_TRUE, 0, out.data().size(), &out.data()[0]);
-		return out;
-	}
+	// 	PixelData out(in.width(), in.height());
+	// 	m_system->queue().enqueueReadBuffer(result, CL_TRUE, 0, out.data().size(), &out.data()[0]);
+	// 	return out;
+	// }
 
 	inline virtual NodeType type() override { return NodeType::Color; }
 
@@ -42,7 +42,8 @@ public:
 	inline virtual Color process(const PixelData& in, float x, float y) override {
 		int ix = int((image.width()+0.5f) * x);
 		int iy = int((image.height()+0.5f) * y);
-		return image.get(ix, iy);
+		Color col = image.get(ix, iy);
+		return col;
 	}
 
 	inline virtual NodeType type() override { return NodeType::Image; }
@@ -55,23 +56,30 @@ public:
 	inline MultiplyNode() {
 		addParam("A");
 		addParam("B");
+		addParam("Fac.");
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
 		auto&& pa = param(0).value;
 		auto&& pb = param(1).value;
+		auto&& fac = param(2).value;
 
 		int xa = int((pa.width() + 0.5f) * x);
 		int ya = int((pa.height() + 0.5f) * y);
 		int xb = int((pb.width() + 0.5f) * x);
 		int yb = int((pb.height() + 0.5f) * y);
+		int xf = int((fac.width() + 0.5f) * x);
+		int yf = int((fac.height() + 0.5f) * y);
 
 		Color na = pa.get(xa, ya);
 		Color nb = pb.get(xb, yb);
-		return Color{ na.r * nb.r, na.g * nb.g, na.b * nb.b, na.a * nb.a };
+		float fc = param(2).connected ? luma(fac.get(xf, yf)) : factor;
+		return Color{ na.r * nb.r * fc, na.g * nb.g * fc, na.b * nb.b * fc, na.a };
 	}
 
 	inline virtual NodeType type() override { return NodeType::Multiply; }
+
+	float factor{ 1.0f };
 };
 
 class AddNode : public Node {
@@ -79,23 +87,70 @@ public:
 	inline AddNode() {
 		addParam("A");
 		addParam("B");
+		addParam("Fac.");
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
 		auto&& pa = param(0).value;
 		auto&& pb = param(1).value;
+		auto&& fac = param(2).value;
 
 		int xa = int((pa.width() + 0.5f) * x);
 		int ya = int((pa.height() + 0.5f) * y);
 		int xb = int((pb.width() + 0.5f) * x);
 		int yb = int((pb.height() + 0.5f) * y);
+		int xf = int((fac.width() + 0.5f) * x);
+		int yf = int((fac.height() + 0.5f) * y);
 
 		Color na = pa.get(xa, ya);
 		Color nb = pb.get(xb, yb);
-		return Color{ na.r + nb.r, na.g + nb.g, na.b + nb.b, na.a + nb.a };
+		float fc = param(2).connected ? luma(fac.get(xf, yf)) : factor;
+		return Color{ na.r + nb.r * fc, na.g + nb.g * fc, na.b + nb.b * fc, na.a };
 	}
 
 	inline virtual NodeType type() override { return NodeType::Add; }
+
+	float factor{ 1.0f };
+};
+
+class MixNode : public Node {
+public:
+	inline MixNode() {
+		addParam("A");
+		addParam("B");
+		addParam("Fac.");
+	}
+
+	inline float lerp(float a, float b, float t) {
+		return (1.0f - t) * a + b * t;
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		auto&& pb = param(1).value;
+		auto&& fac = param(2).value;
+
+		int xa = int((pa.width() + 0.5f) * x);
+		int ya = int((pa.height() + 0.5f) * y);
+		int xb = int((pb.width() + 0.5f) * x);
+		int yb = int((pb.height() + 0.5f) * y);
+		int xf = int((fac.width() + 0.5f) * x);
+		int yf = int((fac.height() + 0.5f) * y);
+
+		Color na = pa.get(xa, ya);
+		Color nb = pb.get(xb, yb);
+		float fc = param(2).connected ? luma(fac.get(xf, yf)) : factor;
+		return Color{
+			lerp(na.r, nb.r, fc),
+			lerp(na.g, nb.g, fc),
+			lerp(na.b, nb.b, fc),
+			lerp(na.a, nb.a, fc)
+		};
+	}
+
+	inline virtual NodeType type() override { return NodeType::Mix; }
+
+	float factor{ 1.0f };
 };
 
 class ThresholdNode : public Node {
@@ -409,6 +464,26 @@ public:
 
 	float quant{ 1.0f };
 
+};
+
+class InvertNode : public Node {
+public:
+	inline InvertNode() {
+		addParam("A");
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+		Color col = pa.get(ix, iy);
+		col.r = 1.0f - col.r;
+		col.g = 1.0f - col.g;
+		col.b = 1.0f - col.b;
+		return col;
+	}
+
+	inline virtual NodeType type() override { return NodeType::Invert; }
 };
 
 #endif // NODES_HPP

@@ -16,7 +16,8 @@
 
 #include "image.h"
 
-#include "CL/cl.hpp"
+// TODO: OpenCL Acceleration
+// #include "CL/cl.hpp"
 
 extern "C" {
 	#include "../openpnp-capture/include/openpnp-capture.h"
@@ -40,7 +41,9 @@ enum class NodeType {
 	BrightnessContrast,
 	WebCam,
 	Mirror,
-	FishEye
+	FishEye,
+	Mix,
+	Invert
 };
 
 class NodeSystem;
@@ -154,19 +157,17 @@ public:
 	PixelData process(const PixelData& in, bool half = false);
 
 	PixelData& cameraFrame() { return m_lastCamFrame; }
-
-	void setOnCapture(const std::function<void()>& cb) { m_onCapture = cb; }
-	void notifyFrameReady() { if (m_onCapture) m_onCapture(); }
-
 	bool capturing() const { return m_capturing; }
+	bool hasFrame() const { return m_hasNewFrame; }
+	void hasFrame(bool v) { m_hasNewFrame = v; }
 
-	cl::Program& GPUProgram() { return m_program; }
-	cl::Context& CLContext() { return m_clContext; }
-	cl::CommandQueue& commandQueue() { return m_commandQueue; }
+	// cl::Program& program() { return m_program; }
+	// cl::Context& context() { return m_clContext; }
+	// cl::CommandQueue& queue() { return m_commandQueue; }
+
+	// bool useGPU() const { return m_useGPU; }
 
 private:
-	std::function<void()> m_onCapture;
-
 	std::vector<unsigned int> getConnectionsLastToFirst(unsigned int start);
 
 	void startCapture();
@@ -182,11 +183,12 @@ private:
 	PixelData* m_imgIn;
 
 	// GPGPU
-	cl::Platform m_clPlatform;
-	cl::Device m_clDevice;
-	cl::Context m_clContext;
-	cl::Program m_program;
-	cl::CommandQueue m_commandQueue;
+	// cl::Platform m_clPlatform;
+	// cl::Device m_clDevice;
+	// cl::Context m_clContext;
+	// cl::Program m_program;
+	// cl::CommandQueue m_commandQueue;
+	// bool m_useGPU{ false };
 
 	// WebCam Capture
 	CapContext m_ctx{ nullptr };
@@ -194,7 +196,7 @@ private:
 	int m_streamID;
 	PixelData m_lastCamFrame;
 	std::thread m_timerThread;
-	bool m_capturing;
+	bool m_capturing{ false }, m_hasNewFrame{ false };
 };
 
 #endif // NODE_H
