@@ -118,7 +118,7 @@ public:
 	inline MixNode() {
 		addParam("A");
 		addParam("B");
-		addParam("Fac.");
+		addParam("Fat.");
 	}
 
 	inline float lerp(float a, float b, float t) {
@@ -484,6 +484,32 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::Invert; }
+};
+
+class DistortNode : public Node {
+public:
+	inline DistortNode() {
+		addParam("A");
+		addParam("DuDv");
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		auto&& dudv = param(1).value;
+		int dx = int((dudv.width()+0.5f) * x);
+		int dy = int((dudv.height()+0.5f) * y);
+		
+		Color uv = dudv.get(dx, dy);
+		float fx = x + (uv.r * 2.0f - 1.0f) * strenght;
+		float fy = y + (uv.g * 2.0f - 1.0f) * strenght;
+		int ix = int((pa.width()+0.5f) * fx);
+		int iy = int((pa.height()+0.5f) * fy);
+		return pa.get(ix, iy);
+	}
+
+	inline virtual NodeType type() override { return NodeType::Distort; }
+
+	float strenght{ 0.02f };
 };
 
 #endif // NODES_HPP

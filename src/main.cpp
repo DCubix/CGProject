@@ -264,6 +264,16 @@ public:
 						th->bounds().height = 20;
 						pnlParams->add(th);
 					} break;
+					case NodeType::Distort: {
+						DistortNode* n = (DistortNode*) node;
+						Spinner* th = gui->spinner(
+							&n->strenght,
+							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+						);
+						Proc(th);
+						th->bounds().height = 20;
+						pnlParams->add(th);
+					} break;
 					default: break;
 				}
 			} else {
@@ -290,6 +300,7 @@ public:
 				case 12: cnv->create<FishEyeNode>(); break;
 				case 13: cnv->create<MixNode>(); break;
 				case 14: cnv->create<InvertNode>(); break;
+				case 15: cnv->create<DistortNode>(); break;
 				default: break;
 			}
 		});

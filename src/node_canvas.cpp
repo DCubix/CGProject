@@ -153,6 +153,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::FishEye: txt = "O. Peixe"; break;
 				case NodeType::Mix: txt = "Mesclar"; break;
 				case NodeType::Invert: txt = "Inverter"; break;
+				case NodeType::Distort: txt = "Distorcer"; break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);

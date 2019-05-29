@@ -29,6 +29,7 @@ R"(
 				<item>Olho de Peixe</item>
 				<item>Mesclar</item>
 				<item>Inverter</item>
+				<item>Distorcer</item>
 			</list>
 			<panel layout="flow" height="20" background="false" padding="0" param="bottom">
 				<button name="btnAdd" text="+" width="20" />

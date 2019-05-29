@@ -43,7 +43,8 @@ enum class NodeType {
 	Mirror,
 	FishEye,
 	Mix,
-	Invert
+	Invert,
+	Distort
 };
 
 class NodeSystem;

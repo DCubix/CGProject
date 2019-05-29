@@ -172,6 +172,11 @@ void NodeSystem::destroy(unsigned int id) {
 		disconnect(cid);
 	}
 
+	m_lock.lock();
+	m_usedNodes.erase(pos);
+	m_nodes[id].reset();
+	m_lock.unlock();
+
 	int cnt = 0;
 	for (auto nid : m_usedNodes) {
 		if (get<Node>(nid)->type() == NodeType::WebCam) {
@@ -179,14 +184,9 @@ void NodeSystem::destroy(unsigned int id) {
 		}
 	}
 
-	if (cnt-1 < 0) {
+	if (cnt == 0) {
 		stopCapture();
 	}
-
-	m_lock.lock();
-	m_usedNodes.erase(pos);
-	m_nodes[id].reset();
-	m_lock.unlock();
 }
 
 void NodeSystem::clear() {
