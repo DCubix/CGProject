@@ -27,7 +27,9 @@ public:
 		m_system->commandQueue().enqueueNDRangeKernel(k, cl::NullRange, cl::NDRange(sz), cl::NullRange);
 		m_system->commandQueue().finish();
 
-
+		PixelData out(in.width(), in.height());
+		m_system->commandQueue().enqueueReadBuffer(result, CL_TRUE, 0, out.data().size(), &out.data()[0]);
+		return out;
 	}
 
 	inline virtual NodeType type() override { return NodeType::Color; }

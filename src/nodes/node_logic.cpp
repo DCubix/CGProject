@@ -19,24 +19,24 @@ std::string Node::paramName(unsigned int id) {
 }
 
 PixelData Node::process(const PixelData& in, bool half) {
-	PixelData out = PixelData(in.width(), in.height());
+	PixelData out = gpuProcess(in, half); //PixelData(in.width(), in.height());
 
 	reset();
 
-	#pragma omp parallel for schedule(dynamic)
-	for (int k = 0; k < in.width() * in.height(); k++) {
-		int x = k % in.width();
-		int y = k / in.width();
-		if (half && x < in.width() / 2) {
-			Color c = in.get(x, y);
-			out.set(x, y, c.r, c.g, c.b, c.a);
-		} else {
-			float fx = float(x) / in.width();
-			float fy = float(y) / in.height();
-			Color c = process(in, fx, fy);
-			out.set(x, y, c.r, c.g, c.b, c.a);
-		}
-	}
+	// #pragma omp parallel for schedule(dynamic)
+	// for (int k = 0; k < in.width() * in.height(); k++) {
+	// 	int x = k % in.width();
+	// 	int y = k / in.width();
+	// 	if (half && x < in.width() / 2) {
+	// 		Color c = in.get(x, y);
+	// 		out.set(x, y, c.r, c.g, c.b, c.a);
+	// 	} else {
+	// 		float fx = float(x) / in.width();
+	// 		float fy = float(y) / in.height();
+	// 		Color c = process(in, fx, fy);
+	// 		out.set(x, y, c.r, c.g, c.b, c.a);
+	// 	}
+	// }
 	return out;
 }
 

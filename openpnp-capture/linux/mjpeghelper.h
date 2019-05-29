@@ -30,23 +30,12 @@
 #ifndef linux_mjpeghelper_h
 #define linux_mjpeghelper_h
 
-#include <turbojpeg.h>
 #include <stdint.h>
 #include <stdlib.h> // size_t
 
 class MJPEGHelper
 {
 public:
-    MJPEGHelper()
-    {
-        m_decompressHandle = tjInitDecompress();
-    }
-
-    virtual ~MJPEGHelper()
-    {
-        tjDestroy(m_decompressHandle);
-    }
-
     /** Decompress a JPEG contained in the buffer. 
         The width and height of the output buffer are for
         sanity checking only. If the JPEG does not match
@@ -54,9 +43,6 @@ public:
     */
     bool decompressFrame(const uint8_t *inBuffer, size_t inBytes, 
         uint8_t *outBuffer, uint32_t outBufWidth, uint32_t outButHeight);
-
-protected:
-    tjhandle m_decompressHandle;  ///< decompressor handle
 };
 
 #endif

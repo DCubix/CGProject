@@ -137,40 +137,30 @@ ELSEIF (MINGW)
 
 ELSEIF(UNIX)
 
-    # compile libjpeg-turbo for MJPEG decoding support
-    # right now, we need to disable SIMD because it
-    # causes a compile problem.. we need to fix this
-    # later...
+    SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
-    set(ENABLE_SHARED OFF)
-    set(WITH_SIMD OFF)
-    add_subdirectory(linux/contrib/libjpeg-turbo-dev)
+    find_package(JPEGTURBO REQUIRED STATIC)
 
     # set the platform identification string
     add_definitions(-D__PLATFORM__="Linux ${COMPILERBITS}")
 
-    set (SOURCE common/libmain.cpp
+    set(SOURCE common/libmain.cpp
                 common/context.cpp
                 common/logging.cpp
                 common/stream.cpp
                 linux/platformcontext.cpp
                 linux/platformstream.cpp
                 linux/mjpeghelper.cpp
-                linux/yuvconverters.cpp)
-
-    # force include directories for libjpeg-turbo
-    include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/linux/contrib/libjpeg-turbo-dev")
+                linux/yuvconverters.cpp
+                linux/contrib/stb.cpp)
 
     # create our capture library
-    add_library(openpnp-capture SHARED ${SOURCE})
+    add_library(openpnp-capture STATIC ${SOURCE})
 
     # add pthreads library
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
     target_link_libraries(openpnp-capture Threads::Threads)
-
-    # add turbojpeg-static library
-    target_link_libraries(openpnp-capture turbojpeg-static)
 
     # add linux-specific test application
     # add_subdirectory(linux/tests)
