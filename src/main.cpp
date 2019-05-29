@@ -187,7 +187,7 @@ public:
 						MedianNode* n = (MedianNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 13.0f, " Tamanho", true, nullptr, 1
+							3.0f, 9.0f, " Tamanho", true, nullptr, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
