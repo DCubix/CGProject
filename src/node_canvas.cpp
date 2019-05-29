@@ -382,3 +382,118 @@ void NodeCanvas::deselect() {
 	m_selected.clear();
 	if (m_onSelect) m_onSelect(nullptr);
 }
+
+struct TypeMapEntry { std::string n; NodeType t; };
+
+#define TM(t) { #t, NodeType::t }
+static const TypeMapEntry TypeMap[] = {
+	TM(Add),
+	TM(Multiply),
+	TM(Mix),
+	TM(None),
+	TM(Color),
+	TM(Erode),
+	TM(Image),
+	TM(Dilate),
+	TM(Invert),
+	TM(Median),
+	TM(Mirror),
+	TM(Output),
+	TM(WebCam),
+	TM(Distort),
+	TM(FishEye),
+	TM(Convolute),
+	TM(Threshold),
+	TM(BrightnessContrast)
+};
+
+void NodeCanvas::load(const Json& json) {
+	Json nodes = json["nodes"];
+	Json conns = json["conns"];
+
+	for (size_t i = 0; i < nodes.size(); i++) {
+		Json nd = nodes[i];
+		int node = -1;
+		auto tp = std::find_if(std::begin(TypeMap), std::end(TypeMap), [nd](const TypeMapEntry& e){
+			return e.n == nd["type"];
+		});
+		if (tp != std::end(TypeMap)) {
+			NodeType type = tp->t;
+			switch (type) {
+				default: break;
+				case NodeType::Add: node = create<AddNode>(); break;
+				case NodeType::Multiply: node = create<MultiplyNode>(); break;
+				case NodeType::Mix: node = create<MixNode>(); break;
+				case NodeType::Color: node = create<ColorNode>(); break;
+				case NodeType::Erode: node = create<ErodeNode>(); break;
+				case NodeType::Image: node = create<ImageNode>(); break;
+				case NodeType::Dilate: node = create<DilateNode>(); break;
+				case NodeType::Invert: node = create<InvertNode>(); break;
+				case NodeType::Median: node = create<MedianNode>(); break;
+				case NodeType::Mirror: node = create<MirrorNode>(); break;
+				case NodeType::WebCam: node = create<WebCamNode>(); break;
+				case NodeType::Distort: node = create<DistortNode>(); break;
+				case NodeType::FishEye: node = create<FishEyeNode>(); break;
+				case NodeType::Convolute: node = create<ConvoluteNode>(); break;
+				case NodeType::Threshold: node = create<ThresholdNode>(); break;
+				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break; break;
+			}
+
+			if (node != -1) {
+				m_gnodes[node].x = nd["x"];
+				m_gnodes[node].y = nd["y"];
+			}
+		}
+	}
+
+	for (size_t i = 0; i < conns.size(); i++) {
+		Json cn = conns[i];
+		m_system->connect(cn["src"], cn["dest"], cn["destParam"]);
+	}
+}
+
+void NodeCanvas::save(Json& json) {
+	Json nodes = Json::array();
+	for (unsigned int nid : m_system->nodes()) {
+		Node* node = m_system->get<Node>(nid);
+		GNode& nd = m_gnodes[nid];
+		Json jnd; node->save(jnd);
+		jnd["x"] = nd.x;
+		jnd["y"] = nd.y;
+		std::string type = "ERROR";
+		switch (node->type()) {
+			default: continue;
+			case NodeType::Add: type = "Add"; break;
+			case NodeType::Multiply: type = "Multiply"; break;
+			case NodeType::Mix: type = "Mix"; break;
+			case NodeType::Color: type = "Color"; break;
+			case NodeType::Erode: type = "Erode"; break;
+			case NodeType::Image: type = "Image"; break;
+			case NodeType::Dilate: type = "Dilate"; break;
+			case NodeType::Invert: type = "Invert"; break;
+			case NodeType::Median: type = "Median"; break;
+			case NodeType::Mirror: type = "Mirror"; break;
+			case NodeType::WebCam: type = "WebCam"; break;
+			case NodeType::Distort: type = "Distort"; break;
+			case NodeType::FishEye: type = "FishEye"; break;
+			case NodeType::Convolute: type = "Convolute"; break;
+			case NodeType::Threshold: type = "Threshold"; break;
+			case NodeType::BrightnessContrast: type = "BrightnessContrast"; break;
+		}
+		jnd["type"] = type;
+		nodes.push_back(jnd);
+	}
+
+	Json conns = Json::array();
+	for (unsigned int cid : m_system->connections()) {
+		auto conn = m_system->getConnection(cid);
+		Json con;
+		con["src"] = conn->src;
+		con["dest"] = conn->dest;
+		con["destParam"] = conn->destParam;
+		conns.push_back(con);
+	}
+
+	json["nodes"] = nodes;
+	json["conns"] = conns;
+}

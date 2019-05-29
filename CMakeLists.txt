@@ -23,6 +23,25 @@ if (OPENMP_FOUND)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
+if(APPLE AND USE_OpenMP)
+	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+		set(OpenMP_C "${CMAKE_C_COMPILER}")
+		set(OpenMP_C_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
+		set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
+		set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})
+		set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})
+		set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})
+	endif()
+	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	  set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")
+	  set(OpenMP_CXX_FLAGS "-fopenmp=libomp -Wno-unused-command-line-argument")
+	  set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")
+	  set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+	  set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+	  set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+	endif()
+endif()
+
 # find_package(OpenCL REQUIRED OpenCL)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
@@ -31,10 +50,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 add_executable(${PROJECT_NAME} ${SRC})
 # OpenCL::OpenCL
 target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
-
-if (UNIX)
-	target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
-endif()
 
 if (CMAKE_DL_LIBS)
 	target_link_libraries(${PROJECT_NAME} PRIVATE 

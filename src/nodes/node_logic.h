@@ -16,6 +16,9 @@
 
 #include "image.h"
 
+#include "../json.hpp"
+using Json = nlohmann::json;
+
 // TODO: OpenCL Acceleration
 // #include "CL/cl.hpp"
 
@@ -55,6 +58,9 @@ public:
 		PixelData value;
 		bool connected{ false };
 	};
+
+	virtual void load(const Json& json) {}
+	virtual void save(Json& json) {}
 
 	Node() = default;
 	virtual ~Node() = default;

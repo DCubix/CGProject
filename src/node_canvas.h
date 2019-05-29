@@ -48,6 +48,9 @@ public:
 
 	Node* current() { return m_selected.empty() ? nullptr : m_system->get<Node>(m_selected[0]); }
 
+	void load(const Json& json);
+	void save(Json& json);
+
 private:
 	enum State {
 		None = 0,

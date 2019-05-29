@@ -1,7 +1,7 @@
 #ifndef NODES_HPP
 #define NODES_HPP
 
-#include <map>
+#include <algorithm>
 
 #include "node_logic.h"
 #include "kernels.hpp"
@@ -34,6 +34,18 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Color; }
 
+	virtual void load(const Json& json) override {
+		auto col = json.value("color", Json::array({ 0.0f, 0.0f, 0.0f, 1.0f }));
+		color.r = col[0];
+		color.g = col[1];
+		color.b = col[2];
+		color.a = col[3];
+	}
+
+	virtual void save(Json& json) override {
+		json["color"] = { color.r, color.g, color.b, color.a };
+	}
+
 	Color color{ 0.0f, 0.0f, 0.0f, 1.0f };
 };
 
@@ -47,6 +59,22 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::Image; }
+
+	virtual void load(const Json& json) override {
+		if (json["image"].is_object()) {
+			Json img = json["image"];
+			image = PixelData(img.value("width", 1), img.value("height", 1));
+			std::vector<uint8_t> data = img["data"];
+			image.data() = data;
+		}
+	}
+
+	virtual void save(Json& json) override {
+		json["image"] = Json::object();
+		json["image"]["width"] = image.width();
+		json["image"]["height"] = image.height();
+		json["image"]["data"] = image.dataCopy();
+	}
 
 	PixelData image{ };
 };
@@ -79,6 +107,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Multiply; }
 
+	virtual void load(const Json& json) override {
+		factor = json.value("factor", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["factor"] = factor;
+	}
+
 	float factor{ 1.0f };
 };
 
@@ -109,6 +145,14 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::Add; }
+
+	virtual void load(const Json& json) override {
+		factor = json.value("factor", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["factor"] = factor;
+	}
 
 	float factor{ 1.0f };
 };
@@ -150,6 +194,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Mix; }
 
+	virtual void load(const Json& json) override {
+		factor = json.value("factor", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["factor"] = factor;
+	}
+
 	float factor{ 1.0f };
 };
 
@@ -187,6 +239,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Threshold; }
 
+	virtual void load(const Json& json) override {
+		threshold = json.value("threshold", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["threshold"] = threshold;
+	}
+
 	float threshold{ 0.5f };
 	float regionSize{ 3 };
 	bool locallyAdaptive{ false };
@@ -221,6 +281,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Dilate; }
 
+	virtual void load(const Json& json) override {
+		size = json.value("size", 3.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["size"] = size;
+	}
+
 	float size{ 3 };
 };
 
@@ -253,6 +321,14 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::Erode; }
+
+	virtual void load(const Json& json) override {
+		size = json.value("size", 3.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["size"] = size;
+	}
 
 	float size{ 3 };
 };
@@ -307,7 +383,16 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Convolute; }
 
+	virtual void load(const Json& json) override {
+		filter = Filter(json.value("filter", 1));
+	}
+
+	virtual void save(Json& json) override {
+		json["filter"] = int(filter);
+	}
+
 	Filter filter{ Filter::GaussianBlur };
+
 };
 
 static std::vector<float> histogram(const PixelData& pa) {
@@ -358,6 +443,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Median; }
 
+	virtual void load(const Json& json) override {
+		size = json.value("size", 3.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["size"] = size;
+	}
+
 	float size{ 3 };
 };
 
@@ -382,6 +475,16 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::BrightnessContrast; }
+
+	virtual void load(const Json& json) override {
+		brightness = json.value("brightness", 1.0f);
+		contrast = json.value("contrast", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["brightness"] = brightness;
+		json["contrast"] = contrast;
+	}
 
 	float brightness{ 0.0f }, contrast{ 1.0f };
 };
@@ -423,6 +526,14 @@ public:
 
 	inline virtual NodeType type() override { return NodeType::Mirror; }
 
+	virtual void load(const Json& json) override {
+		vertical = json.value("vertical", false);
+	}
+
+	virtual void save(Json& json) override {
+		json["vertical"] = vertical;
+	}
+
 	bool vertical{ false };
 };
 
@@ -461,6 +572,14 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::FishEye; }
+
+	virtual void load(const Json& json) override {
+		quant = json.value("quant", 1.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["quant"] = quant;
+	}
 
 	float quant{ 1.0f };
 
@@ -508,6 +627,14 @@ public:
 	}
 
 	inline virtual NodeType type() override { return NodeType::Distort; }
+
+	virtual void load(const Json& json) override {
+		strenght = json.value("strenght", 0.02f);
+	}
+
+	virtual void save(Json& json) override {
+		json["strenght"] = strenght;
+	}
 
 	float strenght{ 0.02f };
 };

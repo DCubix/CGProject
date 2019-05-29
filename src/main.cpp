@@ -1,5 +1,4 @@
 #include <iostream>
-#include <filesystem>
 #include <memory>
 
 #include "widgets/list.h"
@@ -19,7 +18,9 @@
 #include "nodes/nodes.hpp"
 #include "node_canvas.h"
 
-namespace fs = std::filesystem;
+#include "filesystem.hpp"
+
+namespace fs = ghc::filesystem;
 
 class App : public Application {
 public:
@@ -375,6 +376,6 @@ public:
 };
 
 int main(int argc, char** argv) {
-	return App().run("Image Studio");
+	return App().run("Image Studio", 800, 600);
 	//return 0;
 }
