@@ -84,7 +84,7 @@ public:
 	inline MultiplyNode() {
 		addParam("A");
 		addParam("B");
-		addParam("Fac.");
+		addParam("Fat.");
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {
@@ -123,7 +123,7 @@ public:
 	inline AddNode() {
 		addParam("A");
 		addParam("B");
-		addParam("Fac.");
+		addParam("Fat.");
 	}
 
 	inline virtual Color process(const PixelData& in, float x, float y) override {

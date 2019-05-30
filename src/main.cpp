@@ -36,9 +36,9 @@ public:
 
 		Button* btnOpen = gui->get<Button>("btnOpen");
 		Button* btnSave = gui->get<Button>("btnSave");
+		Button* btnSaveAs = gui->get<Button>("btnSaveAs");
 		Button* btnAdd = gui->get<Button>("btnAdd");
 		Button* btnDel = gui->get<Button>("btnDel");
-		Button* btnProc = gui->get<Button>("btnProc");
 		List* lstNodes = gui->get<List>("lstNodes");
 
 		chkHalf = gui->get<Check>("chkHalf");
@@ -51,6 +51,8 @@ public:
 
 		NodeSystem* sys = cnv->system();
 
+		auto onChange = [=](){ saved = false; };
+
 		chkHalf->onChecked([=](bool v) {
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
@@ -61,6 +63,7 @@ public:
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
 			process(imgResult, gui, w, h, chkHalf->checked());
+			onChange();
 		});
 
 		cnv->onSelect([=](Node* node) {
@@ -84,7 +87,7 @@ public:
 						ColorNode* n = (ColorNode*) node;
 						Spinner* sr = gui->spinner(
 							&n->color.r,
-							0.0f, 1.0f, " R", true, nullptr, 0.01f
+							0.0f, 1.0f, " R", true, onChange, 0.01f
 						);
 						sr->bounds().height = 20;
 						Proc(sr);
@@ -92,7 +95,7 @@ public:
 
 						Spinner* sg = gui->spinner(
 							&n->color.g,
-							0.0f, 1.0f, " G", true, nullptr, 0.01f
+							0.0f, 1.0f, " G", true, onChange, 0.01f
 						);
 						Proc(sg);
 						sg->bounds().height = 20;
@@ -100,7 +103,7 @@ public:
 
 						Spinner* sb = gui->spinner(
 							&n->color.b,
-							0.0f, 1.0f, " B", true, nullptr, 0.01f
+							0.0f, 1.0f, " B", true, onChange, 0.01f
 						);
 						Proc(sb);
 						sb->bounds().height = 20;
@@ -108,7 +111,7 @@ public:
 
 						Spinner* sa = gui->spinner(
 							&n->color.a,
-							0.0f, 1.0f, " A", true, nullptr, 0.01f
+							0.0f, 1.0f, " A", true, onChange, 0.01f
 						);
 						Proc(sa);
 						sa->bounds().height = 20;
@@ -131,6 +134,7 @@ public:
 								spnWidth->value(n->image.width());
 								spnHeight->value(n->image.height());
 								process(imgResult, gui, w, h, chkHalf->checked());
+								onChange();
 							}
 						});
 						pnlParams->add(loadImg);
@@ -139,7 +143,7 @@ public:
 						ThresholdNode* n = (ThresholdNode*) node;
 						Spinner* th = gui->spinner(
 							&n->threshold,
-							0.0f, 1.0f, " Limiar", true, nullptr, 0.01f
+							0.0f, 1.0f, " Limiar", true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -149,7 +153,7 @@ public:
 						DilateNode* n = (DilateNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, nullptr, 1
+							3.0f, 9.0f, " Tamanho", true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -159,7 +163,7 @@ public:
 						ErodeNode* n = (ErodeNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, nullptr, 1
+							3.0f, 9.0f, " Tamanho", true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -188,7 +192,7 @@ public:
 						MedianNode* n = (MedianNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, nullptr, 1
+							3.0f, 9.0f, " Tamanho", true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -198,7 +202,7 @@ public:
 						BrightnessContrastNode* n = (BrightnessContrastNode*) node;
 						Spinner* bs = gui->spinner(
 							&n->brightness,
-							-1.0f, 5.0f, " Brilho", true, nullptr, 0.01f
+							-1.0f, 5.0f, " Brilho", true, onChange, 0.01f
 						);
 						Proc(bs);
 						bs->bounds().height = 20;
@@ -206,7 +210,7 @@ public:
 
 						Spinner* cs = gui->spinner(
 							&n->contrast,
-							0.0f, 5.0f, " Contraste", true, nullptr, 0.1f
+							0.0f, 5.0f, " Contraste", true, onChange, 0.1f
 						);
 						Proc(cs);
 						cs->bounds().height = 20;
@@ -229,7 +233,7 @@ public:
 						FishEyeNode* n = (FishEyeNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->quant,
-							0.0f, 4.0f, " Tamanho", true, nullptr, 0.01f
+							0.0f, 4.0f, " Tamanho", true, onChange, 0.01f
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -239,7 +243,7 @@ public:
 						AddNode* n = (AddNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+							0.0f, 1.0f, " Fator", true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -249,7 +253,7 @@ public:
 						MultiplyNode* n = (MultiplyNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+							0.0f, 1.0f, " Fator", true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -259,7 +263,7 @@ public:
 						MixNode* n = (MixNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+							0.0f, 1.0f, " Fator", true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -269,7 +273,7 @@ public:
 						DistortNode* n = (DistortNode*) node;
 						Spinner* th = gui->spinner(
 							&n->strenght,
-							0.0f, 1.0f, " Fator", true, nullptr, 0.01f
+							0.0f, 1.0f, " Fator", true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -304,6 +308,7 @@ public:
 				case 15: cnv->create<DistortNode>(); break;
 				default: break;
 			}
+			onChange();
 		});
 
 		btnDel->onClick([=](int btn, int x, int y) {
@@ -312,37 +317,73 @@ public:
 				btnDel->enabled(false);
 				btnDel->onExit();
 				pnlParams->removeAll();
+				onChange();
 			}
 		});
 
+		auto fileOpen = [=]() {
+			auto ret = osd::Dialog::file(
+						osd::DialogAction::OpenFile,
+						".",
+						osd::Filters("Image Studio Project:isp")
+			);
+			if (ret.has_value() && fs::exists(fs::path(ret.value()))) {
+				std::ifstream fp(ret.value());
+				Json json; fp >> json;
+				cnv->load(json);
+				fp.close();
+				saved = true;
+				currentFileName = ret.value();
+			}
+		};
+
+		auto fileSaveAs = [=](const std::string& fileName) {
+			std::ofstream fp(fileName);
+			Json json; cnv->save(json);
+			fp << json;
+			fp.close();
+			saved = true;
+			currentFileName = fileName;
+		};
+
+		auto fileSaveDialog = [=]() {
+			auto ret = osd::Dialog::file(
+						osd::DialogAction::SaveFile,
+						".",
+						osd::Filters("Image Studio Project:isp")
+			);
+
+			if (ret.has_value()) {
+				fileSaveAs(ret.value());
+			}
+		};
+
 		btnOpen->onClick([=](int btn, int x, int y) {
-//			auto ret = osd::Dialog::file(
-//						osd::DialogAction::OpenFile,
-//						".",
-//						osd::Filters("Imagens:jpg,png,bmp,tga,psd,hdr,gif,pic,pgm,ppm")
-//			);
-
-//			if (ret.has_value() && fs::exists(fs::path(ret.value()))) {
-
-//			}
+			if (!saved) {
+				auto res = osd::Dialog::message(
+							osd::MessageLevel::Warning,
+							osd::MessageButtons::YesNo,
+							"Atenção",
+							"Seu projeto atual não foi salvo, deseja continuar?"
+				);
+				if (res == osd::Dialog::ReturnType::Yes) {
+					fileOpen();
+				}
+			} else {
+				fileOpen();
+			}
 		});
 
 		btnSave->onClick([=](int btn, int x, int y) {
-//			auto ret = osd::Dialog::file(
-//						osd::DialogAction::SaveFile,
-//						".",
-//						osd::Filters("Imagem PNG:png")
-//			);
-
-//			if (ret.has_value()) {
-//				stbi_write_png(ret.value().c_str(), dataB.width(), dataB.height(), 4, dataB.data().data(), 4 * dataB.width());
-//			}
+			if (!saved) {
+				fileSaveDialog();
+			} else {
+				fileSaveAs(currentFileName);
+			}
 		});
 
-		btnProc->onClick([=](int btn, int x, int y) {
-			int w = int(spnWidth->value());
-			int h = int(spnHeight->value());
-			process(imgResult, gui, w, h, chkHalf->checked());
+		btnSaveAs->onClick([=](int btn, int x, int y) {
+			fileSaveDialog();
 		});
 
 	}
@@ -373,6 +414,9 @@ public:
 	Check* chkHalf;
 	Spinner* spnWidth;
 	Spinner* spnHeight;
+
+	std::string currentFileName;
+	bool saved{ false };
 };
 
 int main(int argc, char** argv) {

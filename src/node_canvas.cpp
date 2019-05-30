@@ -138,10 +138,10 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			std::string txt = "";
 			switch (node->type()) {
 				default: break;
-				case NodeType::Add: txt = "Soma"; break;
-				case NodeType::Multiply: txt = "Mult"; break;
+				case NodeType::Add: txt = "Adição"; break;
+				case NodeType::Multiply: txt = "Mult."; break;
 				case NodeType::Color: txt = "Cor"; break;
-				case NodeType::Erode: txt = "Erodir"; break;
+				case NodeType::Erode: txt = "Erosão"; break;
 				case NodeType::Dilate: txt = "Dilatar"; break;
 				case NodeType::Median: txt = "Mediano"; break;
 				case NodeType::Convolute: txt = "Convoluir"; break;
@@ -408,6 +408,8 @@ static const TypeMapEntry TypeMap[] = {
 };
 
 void NodeCanvas::load(const Json& json) {
+	m_system->clear();
+
 	Json nodes = json["nodes"];
 	Json conns = json["conns"];
 
