@@ -1,0 +1,16 @@
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/CMakeFiles/imgstudio.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/CMakeFiles/gui.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/CMakeFiles/gui_test.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/nanovg/CMakeFiles/nanovg.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/nanovg/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/nanovg/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/CMakeFiles/osdialog.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/CMakeFiles/rebuild_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/openpnp-capture/CMakeFiles/openpnp-capture.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/openpnp-capture/CMakeFiles/edit_cache.dir
+C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/openpnp-capture/CMakeFiles/rebuild_cache.dir

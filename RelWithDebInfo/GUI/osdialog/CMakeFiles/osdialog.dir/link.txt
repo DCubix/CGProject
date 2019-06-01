@@ -1,0 +1,2 @@
+C:\msys64\mingw64\bin\ar.exe qc libosdialog.a  CMakeFiles/osdialog.dir/osdialog.c.obj CMakeFiles/osdialog.dir/osdialog_win.c.obj
+C:\msys64\mingw64\bin\ranlib.exe libosdialog.a

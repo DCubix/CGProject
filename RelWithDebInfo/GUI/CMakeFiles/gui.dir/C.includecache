@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Twister/Projects/cpp/cgproject/GUI/glad/glad.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+glad.h
+C:/Users/Twister/Projects/cpp/cgproject/GUI/glad/glad.h
+windows.h
+-
+winapifamily.h
+-
+dlfcn.h
+-
+
+C:/Users/Twister/Projects/cpp/cgproject/GUI/glad/glad.h
+windows.h
+-
+khrplatform.h
+C:/Users/Twister/Projects/cpp/cgproject/GUI/glad/khrplatform.h
+
+C:/Users/Twister/Projects/cpp/cgproject/GUI/glad/khrplatform.h
+stdint.h
+-
+inttypes.h
+-
+stdint.h
+-
+

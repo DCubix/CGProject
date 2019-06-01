@@ -119,6 +119,13 @@ public:
 					} break;
 					case NodeType::Image: {
 						ImageNode* n = (ImageNode*) node;
+
+						Label* lblInfo = gui->create<Label>();
+						lblInfo->text("Arquivo: " + (n->fileName.empty() ? "<vazio>" : n->fileName));
+						lblInfo->bounds().height = 20;
+						lblInfo->wordWrap(true);
+						pnlParams->add(lblInfo);
+
 						Button* loadImg = gui->create<Button>();
 						loadImg->text("Abrir...");
 						loadImg->bounds().height = 20;
@@ -135,9 +142,14 @@ public:
 								spnHeight->value(n->image.height());
 								process(imgResult, gui, w, h, chkHalf->checked());
 								onChange();
+
+								fs::path rel = fs::relative(fs::path(ret.value()));
+								n->fileName = rel.string();
+								lblInfo->text("Arquivo: " + (n->fileName.empty() ? "<vazio>" : n->fileName));
 							}
 						});
 						pnlParams->add(loadImg);
+
 					} break;
 					case NodeType::Threshold: {
 						ThresholdNode* n = (ThresholdNode*) node;

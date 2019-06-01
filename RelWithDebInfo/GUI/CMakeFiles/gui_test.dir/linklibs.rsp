@@ -1,0 +1,1 @@
+libgui.a osdialog/libosdialog.a -lcomdlg32 -L/mingw64/lib  -lmingw32 -lSDL2main -lSDL2 -mwindows nanovg/libnanovg.a -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

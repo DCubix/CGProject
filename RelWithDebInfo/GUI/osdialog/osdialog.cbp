@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="osdialog"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\GUI\;CMake Files\GUI\nanovg\;CMake Files\GUI\osdialog\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\msys64\;CMake Files\..\..\..\..\..\msys64\mingw64\;CMake Files\..\..\..\..\..\msys64\mingw64\lib\;CMake Files\..\..\..\..\..\msys64\mingw64\lib\cmake\;CMake Files\..\..\..\..\..\msys64\mingw64\lib\cmake\SDL2\;CMake Files\openpnp-capture\;CMake Files\openpnp-capture\cmake\;CMake Files\.git\;CMake Files\.git\refs\;CMake Files\.git\refs\heads\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="osdialog">
+				<Option output="C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/libosdialog.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSDL_MAIN_HANDLED"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0/x86_64-w64-mingw32"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0/backward"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 osdialog"/>
+					<CompileFile command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="osdialog/fast">
+				<Option output="C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/libosdialog.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSDL_MAIN_HANDLED"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0/x86_64-w64-mingw32"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include/c++/8.3.0/backward"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../include"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/include-fixed"/>
+					<Add directory="C:/msys64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.3.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 osdialog/fast"/>
+					<CompileFile command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/msys64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/Twister/Projects/cpp/cgproject/RelWithDebInfo/GUI/osdialog/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/osdialog/OsDialog.hpp">
+			<Option target="osdialog"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/osdialog/osdialog.c">
+			<Option target="osdialog"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/osdialog/osdialog.h">
+			<Option target="osdialog"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/osdialog/osdialog_win.c">
+			<Option target="osdialog"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\GUI\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/nanovg/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\GUI\nanovg\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/GUI/osdialog/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\GUI\osdialog\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/../../../../../msys64/mingw64/lib/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\msys64\mingw64\lib\cmake\SDL2\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/openpnp-capture/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\openpnp-capture\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/openpnp-capture/cmake/GetGitRevisionDescription.cmake">
+			<Option virtualFolder="CMake Files\openpnp-capture\cmake\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/openpnp-capture/cmake/GetGitRevisionDescription.cmake.in">
+			<Option virtualFolder="CMake Files\openpnp-capture\cmake\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/openpnp-capture/cmake/version.h.in">
+			<Option virtualFolder="CMake Files\openpnp-capture\cmake\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/.git/HEAD">
+			<Option virtualFolder="CMake Files\.git\"/>
+		</Unit>
+		<Unit filename="C:/Users/Twister/Projects/cpp/cgproject/.git/refs/heads/master">
+			<Option virtualFolder="CMake Files\.git\refs\heads\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

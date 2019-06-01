@@ -5,6 +5,9 @@
 
 #include "node_logic.h"
 #include "kernels.hpp"
+#include "filesystem.hpp"
+
+namespace fs = ghc::filesystem;
 
 inline static float luma(Color col) {
 	return col.r * 0.299f + col.g * 0.587f + col.b * 0.114f;
@@ -61,22 +64,16 @@ public:
 	inline virtual NodeType type() override { return NodeType::Image; }
 
 	virtual void load(const Json& json) override {
-		if (json["image"].is_object()) {
-			Json img = json["image"];
-			image = PixelData(img.value("width", 1), img.value("height", 1));
-			std::vector<uint8_t> data = img["data"];
-			image.data() = data;
-		}
+		fileName = json["fileName"];
+		image = PixelData(fs::absolute(fs::path(fileName)).string());
 	}
 
 	virtual void save(Json& json) override {
-		json["image"] = Json::object();
-		json["image"]["width"] = image.width();
-		json["image"]["height"] = image.height();
-		json["image"]["data"] = image.dataCopy();
+		json["fileName"] = fileName;
 	}
 
-	PixelData image{ };
+	PixelData image{};
+	std::string fileName{};
 };
 
 class MultiplyNode : public Node {
