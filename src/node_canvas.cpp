@@ -444,6 +444,7 @@ void NodeCanvas::load(const Json& json) {
 			if (node != -1) {
 				m_gnodes[node].x = nd["x"];
 				m_gnodes[node].y = nd["y"];
+				m_system->get<Node>(node)->load(nd);
 			}
 		}
 	}

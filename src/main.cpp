@@ -37,11 +37,11 @@ public:
 		Button* btnOpen = gui->get<Button>("btnOpen");
 		Button* btnSave = gui->get<Button>("btnSave");
 		Button* btnSaveAs = gui->get<Button>("btnSaveAs");
+		Button* btnSaveImg = gui->get<Button>("btnSaveImg");
 		Button* btnAdd = gui->get<Button>("btnAdd");
 		Button* btnDel = gui->get<Button>("btnDel");
 		List* lstNodes = gui->get<List>("lstNodes");
 
-		chkHalf = gui->get<Check>("chkHalf");
 		spnWidth = gui->get<Spinner>("spnWidth");
 		spnHeight = gui->get<Spinner>("spnHeight");
 
@@ -53,16 +53,22 @@ public:
 
 		auto onChange = [=](){ saved = false; };
 
-		chkHalf->onChecked([=](bool v) {
-			int w = int(spnWidth->value());
+		spnWidth->onChange([=](float v) {
+			int w = int(v);
 			int h = int(spnHeight->value());
-			process(imgResult, gui, w, h, v);
+			process(imgResult, gui, w, h);
+		});
+
+		spnHeight->onChange([=](float v) {
+			int w = int(spnWidth->value());
+			int h = int(v);
+			process(imgResult, gui, w, h);
 		});
 
 		cnv->onConnect([=]() {
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
-			process(imgResult, gui, w, h, chkHalf->checked());
+			process(imgResult, gui, w, h);
 			onChange();
 		});
 
@@ -74,7 +80,7 @@ public:
 			auto&& processImage = [=](int b, int x, int y) {
 				int w = int(spnWidth->value());
 				int h = int(spnHeight->value());
-				process(imgResult, gui, w, h, chkHalf->checked());
+				process(imgResult, gui, w, h);
 			};
 
 			pnlParams->removeAll();
@@ -122,9 +128,8 @@ public:
 
 						Label* lblInfo = gui->create<Label>();
 						lblInfo->text("Arquivo: " + (n->fileName.empty() ? "<vazio>" : n->fileName));
-						lblInfo->bounds().height = 20;
+						lblInfo->bounds().height = 80;
 						lblInfo->wordWrap(true);
-						pnlParams->add(lblInfo);
 
 						Button* loadImg = gui->create<Button>();
 						loadImg->text("Abrir...");
@@ -140,7 +145,7 @@ public:
 								n->image = PixelData(ret.value());
 								spnWidth->value(n->image.width());
 								spnHeight->value(n->image.height());
-								process(imgResult, gui, w, h, chkHalf->checked());
+								process(imgResult, gui, int(spnWidth->value()), int(spnHeight->value()));
 								onChange();
 
 								fs::path rel = fs::relative(fs::path(ret.value()));
@@ -149,6 +154,7 @@ public:
 							}
 						});
 						pnlParams->add(loadImg);
+						pnlParams->add(lblInfo);
 
 					} break;
 					case NodeType::Threshold: {
@@ -196,7 +202,7 @@ public:
 						rs->selected(int(n->filter) - 1);
 						rs->onSelected([=](int s) {
 							n->filter = ConvoluteNode::Filter(s + 1);
-							process(imgResult, gui, w, h, chkHalf->checked());
+							process(imgResult, gui, w, h);
 						});
 						pnlParams->add(rs);
 					} break;
@@ -235,7 +241,7 @@ public:
 						rs->checked(n->vertical);
 						rs->onChecked([=](bool v) {
 							n->vertical = v;
-							process(imgResult, gui, w, h, chkHalf->checked());
+							process(imgResult, gui, w, h);
 						});
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -346,6 +352,10 @@ public:
 				fp.close();
 				saved = true;
 				currentFileName = ret.value();
+
+				int w = int(spnWidth->value());
+				int h = int(spnHeight->value());
+				process(imgResult, gui, w, h);
 			}
 		};
 
@@ -387,7 +397,7 @@ public:
 		});
 
 		btnSave->onClick([=](int btn, int x, int y) {
-			if (!saved) {
+			if (currentFileName.empty()) {
 				fileSaveDialog();
 			} else {
 				fileSaveAs(currentFileName);
@@ -398,14 +408,32 @@ public:
 			fileSaveDialog();
 		});
 
+		btnSaveImg->onClick([=](int btn, int x, int y) {
+			auto ret = osd::Dialog::file(
+						osd::DialogAction::SaveFile,
+						".",
+						osd::Filters("Imagem PNG:png")
+			);
+
+			if (ret.has_value()) {
+				fs::path fp(ret.value());
+				fp.replace_extension(".png");
+
+				int w = int(spnWidth->value());
+				int h = int(spnHeight->value());
+				PixelData img = cnv->system()->process(PixelData(w, h));
+				stbi_write_png(fp.string().c_str(), w, h, 4, img.dataCopy().data(), img.width() * 4);
+			}
+		});
+
 	}
 
-	inline void process(ImageView* res, GUI* gui, int w, int h, bool half) {
-		PixelData img = cnv->system()->process(PixelData(w, h), half);
-		if (!result || (result && result->width() != img.width() || result->height() != img.height())) {
+	inline void process(ImageView* res, GUI* gui, int w, int h) {
+		PixelData img = cnv->system()->process(PixelData(w, h), false);
+		if (result) {
 			result.reset();
-			result = std::make_unique<Image>();
 		}
+		result = std::make_unique<Image>();
 		result->load(gui->renderer(), img);
 		res->image(result.get());
 	}
@@ -414,7 +442,7 @@ public:
 		if (cnv->system()->capturing() && cnv->system()->hasFrame()) {
 			int w = int(spnWidth->value());
 			int h = int(spnHeight->value());
-			process(imgResult, gui, w, h, chkHalf->checked());
+			process(imgResult, gui, w, h);
 		}
 	}
 
@@ -423,7 +451,6 @@ public:
 	float utime{ 0.0f };
 
 	ImageView* imgResult;
-	Check* chkHalf;
 	Spinner* spnWidth;
 	Spinner* spnHeight;
 

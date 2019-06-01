@@ -1,2 +1,0 @@
-C:\msys64\mingw64\bin\ar.exe qc libopenpnp-capture.a  CMakeFiles/openpnp-capture.dir/common/libmain.cpp.obj CMakeFiles/openpnp-capture.dir/common/context.cpp.obj CMakeFiles/openpnp-capture.dir/common/logging.cpp.obj CMakeFiles/openpnp-capture.dir/common/stream.cpp.obj CMakeFiles/openpnp-capture.dir/win/platformcontext.cpp.obj CMakeFiles/openpnp-capture.dir/win/platformstream.cpp.obj
-C:\msys64\mingw64\bin\ranlib.exe libopenpnp-capture.a

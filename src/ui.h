@@ -4,6 +4,7 @@ R"(
 		<button name="btnOpen" text="Abrir" width="60" />
 		<button name="btnSave" text="Salvar" width="60" />
 		<button name="btnSaveAs" text="Salvar Como..." width="120" />
+		<button name="btnSaveImg" text="Salvar Imagem" width="120" />
 	</panel>
 	<splitview param="center" divider="200" orientation="vertical">
 		<panel layout="border" background="false" padding="0">
@@ -35,7 +36,7 @@ R"(
 			<panel layout="border" param="center" height="120" background="false" padding="0">
 				<panel background="false" param="center" layout="border">
 					<label text="Parametros" param="top" />
-					<panel name="pnlParams" param="center" layout="stack" background="false">
+					<panel name="pnlParams" param="center" layout="stack" background="false" padding="0">
 
 					</panel>
 				</panel>
@@ -43,7 +44,6 @@ R"(
 					<label text="Imagem" />
 					<spinner name="spnWidth" suffix=" Largura" min="1" max="1024" value="320" step="1" draggable="false" height="20" />
 					<spinner name="spnHeight" suffix=" Altura" min="1" max="1024" value="240" step="1" draggable="false" height="20" />
-					<check name="chkHalf" text="Mostrar Original" height="20" />
 				</panel>
 			</panel>
 		</panel>

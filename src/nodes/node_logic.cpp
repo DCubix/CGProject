@@ -326,15 +326,12 @@ PixelData NodeSystem::process(const PixelData& in, bool half) {
 		i++;
 		//
 
-		//if (!src->m_solved) {
 		if (src->type() == NodeType::Image) {
 			m_imgIn = &((ImageNode*) src)->image;
 		} else if (src->type() == NodeType::WebCam) {
 			m_imgIn = &m_lastCamFrame;
 		}
-		dest->param(conn->destParam).value = src->process(m_imgIn == nullptr ? in : *m_imgIn, half);
-		//	src->m_solved = true;
-		//}
+		dest->param(conn->destParam).value = src->process(/*m_imgIn == nullptr ? in : *m_imgIn*/in, half);
 
 		if (dest->type() == NodeType::Output) {
 			out = ((OutputNode*) dest)->param(0).value;
