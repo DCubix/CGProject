@@ -5,6 +5,7 @@ constexpr int textPad = 3;
 constexpr int GridSize = 8;
 
 #include "nodes/nodes.hpp"
+#include "localization.h"
 
 static bool hitsR(int x, int y, int bx, int by, int bw, int bh) {
 	return x > bx &&
@@ -138,22 +139,22 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			std::string txt = "";
 			switch (node->type()) {
 				default: break;
-				case NodeType::Add: txt = "Adição"; break;
+				case NodeType::Add: txt = LL("Add"); break;
 				case NodeType::Multiply: txt = "Mult."; break;
-				case NodeType::Color: txt = "Cor"; break;
-				case NodeType::Erode: txt = "Erosão"; break;
-				case NodeType::Dilate: txt = "Dilatar"; break;
-				case NodeType::Median: txt = "Mediano"; break;
-				case NodeType::Convolute: txt = "Convoluir"; break;
-				case NodeType::Threshold: txt = "Limiar"; break;
-				case NodeType::Image: txt = "Imagem"; break;
-				case NodeType::BrightnessContrast: txt = "Brlh./Ctr."; break;
+				case NodeType::Color: txt = LL("Color"); break;
+				case NodeType::Erode: txt = LL("Erode"); break;
+				case NodeType::Dilate: txt = LL("Dilate"); break;
+				case NodeType::Median: txt = LL("Median"); break;
+				case NodeType::Convolute: txt = LL("Convolute"); break;
+				case NodeType::Threshold: txt = LL("Threshold"); break;
+				case NodeType::Image: txt = LL("Image"); break;
+				case NodeType::BrightnessContrast: txt = "B/C"; break;
 				case NodeType::WebCam: txt = "WebCam"; break;
-				case NodeType::Mirror: txt = "Espelhar"; break;
-				case NodeType::FishEye: txt = "O. Peixe"; break;
-				case NodeType::Mix: txt = "Mesclar"; break;
-				case NodeType::Invert: txt = "Inverter"; break;
-				case NodeType::Distort: txt = "Distorcer"; break;
+				case NodeType::Mirror: txt = LL("Mirror"); break;
+				case NodeType::FishEye: txt = LL("F. Eye"); break;
+				case NodeType::Mix: txt = LL("Mix"); break;
+				case NodeType::Invert: txt = LL("Invert"); break;
+				case NodeType::Distort: txt = LL("Distort"); break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);

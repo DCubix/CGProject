@@ -127,18 +127,18 @@ public:
 						ImageNode* n = (ImageNode*) node;
 
 						Label* lblInfo = gui->create<Label>();
-						lblInfo->text("Arquivo: " + (n->fileName.empty() ? "<vazio>" : n->fileName));
+						lblInfo->text(LL("File") + ": " + (n->fileName.empty() ? LL("<empty>") : n->fileName));
 						lblInfo->bounds().height = 80;
 						lblInfo->wordWrap(true);
 
 						Button* loadImg = gui->create<Button>();
-						loadImg->text("Abrir...");
+						loadImg->text(LL("Open") + "...");
 						loadImg->bounds().height = 20;
 						loadImg->onClick([=](int b, int x, int y) {
 							auto ret = osd::Dialog::file(
 										osd::DialogAction::OpenFile,
 										".",
-										osd::Filters("Imagens:jpg,png,bmp,tga,psd,hdr,gif,pic,pgm,ppm")
+										osd::Filters("Images:jpg,png,bmp,tga,psd,hdr,gif,pic,pgm,ppm")
 							);
 
 							if (ret.has_value() && fs::exists(fs::path(ret.value()))) {
@@ -150,7 +150,7 @@ public:
 
 								fs::path rel = fs::relative(fs::path(ret.value()));
 								n->fileName = rel.string();
-								lblInfo->text("Arquivo: " + (n->fileName.empty() ? "<vazio>" : n->fileName));
+								lblInfo->text(LL("File") + ": " + (n->fileName.empty() ? LL("<empty>") : n->fileName));
 							}
 						});
 						pnlParams->add(loadImg);
@@ -161,7 +161,7 @@ public:
 						ThresholdNode* n = (ThresholdNode*) node;
 						Spinner* th = gui->spinner(
 							&n->threshold,
-							0.0f, 1.0f, " Limiar", true, onChange, 0.01f
+							0.0f, 1.0f, LL(" Threshold"), true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -171,7 +171,7 @@ public:
 						DilateNode* n = (DilateNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, onChange, 1
+							3.0f, 9.0f, LL(" Size"), true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -181,7 +181,7 @@ public:
 						ErodeNode* n = (ErodeNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, onChange, 1
+							3.0f, 9.0f, LL(" Size"), true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -191,13 +191,13 @@ public:
 						ConvoluteNode* n = (ConvoluteNode*) node;
 						List* rs = gui->create<List>();
 						rs->list({
-									 "Borrar (Gaussiano)",
-									 "Borrar (Caixa)",
-									 "Agucar",
-									 "Bordas (Gauss)",
-									 "Bordas (Laplace)",
-									 "Relevo",
-									 "Relevo (Bordas)",
+									 LL("Blur (Gaussian)"),
+									 LL("Blur (Box)"),
+									 LL("Sharpen"),
+									 LL("Edges (Gauss)"),
+									 LL("Edges (Laplace)"),
+									 LL("Emboss"),
+									 LL("Emboss (Edges)")
 						});
 						rs->selected(int(n->filter) - 1);
 						rs->onSelected([=](int s) {
@@ -210,7 +210,7 @@ public:
 						MedianNode* n = (MedianNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->size,
-							3.0f, 9.0f, " Tamanho", true, onChange, 1
+							3.0f, 9.0f, LL(" Size"), true, onChange, 1
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -220,7 +220,7 @@ public:
 						BrightnessContrastNode* n = (BrightnessContrastNode*) node;
 						Spinner* bs = gui->spinner(
 							&n->brightness,
-							-1.0f, 5.0f, " Brilho", true, onChange, 0.01f
+							-1.0f, 5.0f, LL(" Brightness"), true, onChange, 0.01f
 						);
 						Proc(bs);
 						bs->bounds().height = 20;
@@ -228,7 +228,7 @@ public:
 
 						Spinner* cs = gui->spinner(
 							&n->contrast,
-							0.0f, 5.0f, " Contraste", true, onChange, 0.1f
+							0.0f, 5.0f, LL(" Contrast"), true, onChange, 0.1f
 						);
 						Proc(cs);
 						cs->bounds().height = 20;
@@ -251,7 +251,7 @@ public:
 						FishEyeNode* n = (FishEyeNode*) node;
 						Spinner* rs = gui->spinner(
 							&n->quant,
-							0.0f, 4.0f, " Tamanho", true, onChange, 0.01f
+							0.0f, 4.0f, LL(" Size"), true, onChange, 0.01f
 						);
 						Proc(rs);
 						rs->bounds().height = 20;
@@ -261,7 +261,7 @@ public:
 						AddNode* n = (AddNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, onChange, 0.01f
+							0.0f, 1.0f, LL(" Factor"), true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -271,7 +271,7 @@ public:
 						MultiplyNode* n = (MultiplyNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, onChange, 0.01f
+							0.0f, 1.0f, LL(" Factor"), true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -281,7 +281,7 @@ public:
 						MixNode* n = (MixNode*) node;
 						Spinner* th = gui->spinner(
 							&n->factor,
-							0.0f, 1.0f, " Fator", true, onChange, 0.01f
+							0.0f, 1.0f, LL(" Factor"), true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -291,7 +291,7 @@ public:
 						DistortNode* n = (DistortNode*) node;
 						Spinner* th = gui->spinner(
 							&n->strenght,
-							0.0f, 1.0f, " Fator", true, onChange, 0.01f
+							0.0f, 1.0f, LL(" Factor"), true, onChange, 0.01f
 						);
 						Proc(th);
 						th->bounds().height = 20;
@@ -385,8 +385,8 @@ public:
 				auto res = osd::Dialog::message(
 							osd::MessageLevel::Warning,
 							osd::MessageButtons::YesNo,
-							"Atenção",
-							"Seu projeto atual não foi salvo, deseja continuar?"
+							LL("Warning"),
+							LL("Your current project has not been saved, continue?")
 				);
 				if (res == osd::Dialog::ReturnType::Yes) {
 					fileOpen();
@@ -412,7 +412,7 @@ public:
 			auto ret = osd::Dialog::file(
 						osd::DialogAction::SaveFile,
 						".",
-						osd::Filters("Imagem PNG:png")
+						osd::Filters("PNG Image:png")
 			);
 
 			if (ret.has_value()) {

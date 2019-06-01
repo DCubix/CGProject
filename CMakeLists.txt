@@ -47,6 +47,8 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 
+file(COPY ${CMAKE_SOURCE_DIR}/locale DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+
 add_executable(${PROJECT_NAME} ${SRC})
 # OpenCL::OpenCL
 target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
