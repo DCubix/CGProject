@@ -6,6 +6,9 @@ R"(
 		<button name="btnSaveAs" text="Salvar Como..." width="120" />
 		<button name="btnSaveImg" text="Salvar Imagem" width="120" />
 	</panel>
+	<panel param="bottom" layout="flow" height="16" padding="2" background="false">
+		<label text="Diego Lopes - diego95lopes@gmail.com - v1.0.1" width="480" height="14" />
+	</panel>
 	<splitview param="center" divider="200" orientation="vertical">
 		<panel layout="border" background="false" padding="0">
 			<panel layout="border" param="top" height="160">
@@ -48,7 +51,7 @@ R"(
 			</panel>
 		</panel>
 
-		<splitview divider="400" orientation="horizontal">
+		<splitview divider="300" orientation="horizontal">
 			<panel name="pnlView" row="0" layout="grid" gridWidth="1" gridHeight="1" background="false" padding="0"></panel>
 			<panel row="1" layout="grid" gridWidth="1" gridHeight="1" background="false" padding="0">
 				<imageview name="imgResult" />
