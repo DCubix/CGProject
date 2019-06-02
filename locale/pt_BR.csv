@@ -1,0 +1,43 @@
+Open;Abrir
+Save;Salvar
+Save As...;Salvar Como...
+Save Image;Salvar Imagem
+Nodes;Nós
+Add;Adição
+Multiply;Multiplicação
+Solid Color;Cor Sólida
+Image;Imagem
+Erode;Erosão
+Dilate;Dilatação
+Median;Mediano
+Convolute;Convolução
+Threshold;Limiar
+Brightness/Contrast;Brilho/Contraste
+Mirror;Espelho
+Fish Eye;Olho de Peixe
+Mix;Mesclar
+Invert;Inverter
+Distort;Distorcer
+Parameters;Parâmetros
+Image;Imagem
+ Width; Largura
+ Height; Altura
+Fac.;Fat.
+Color;Cor
+F. Eye;O. Peixe
+File;Arquivo
+<empty>;<vazio>
+ Threshold; Limiar
+ Size; Tamanho
+Blur (Gaussian);Borrar (Gaussiano)
+Blur (Box);Borrar (Caixa)
+Sharpen;Agucar
+Edges (Gauss);Bordas (Gauss)
+Edges (Laplace);Bordas (Laplace)
+Emboss;Relevo
+Emboss (Edges);Relevo (Bordas)
+ Brightness; Brilho
+ Contrast; Contraste
+ Factor; Fator
+Warning;Atenção
+Your current project has not been saved, continue?;Seu projeto atual não foi salvo, deseja continuar?

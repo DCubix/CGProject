@@ -1,0 +1,1 @@
+{"conns":[{"dest":2,"destParam":0,"src":1},{"dest":3,"destParam":0,"src":2},{"dest":0,"destParam":0,"src":3}],"nodes":[{"fileName":"..\\test\\test.jpg","type":"Image","x":144,"y":80},{"threshold":0.4500000476837158,"type":"Threshold","x":248,"y":80},{"size":4.0,"type":"Erode","x":384,"y":112}]}
