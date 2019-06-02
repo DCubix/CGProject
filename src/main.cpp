@@ -7,6 +7,7 @@
 #include "widgets/imageview.h"
 #include "widgets/button.h"
 #include "widgets/spinner.h"
+#include "widgets/colorpicker.h"
 
 #include "stb_image_write.h"
 
@@ -92,37 +93,30 @@ public:
 				switch (node->type()) {
 					case NodeType::Color: {
 						ColorNode* n = (ColorNode*) node;
-						Spinner* sr = gui->spinner(
-							&n->color.r,
-							0.0f, 1.0f, " R", true, onChange, 0.01f
-						);
-						sr->bounds().height = 20;
-						Proc(sr);
-						pnlParams->add(sr);
 
-						Spinner* sg = gui->spinner(
-							&n->color.g,
-							0.0f, 1.0f, " G", true, onChange, 0.01f
-						);
-						Proc(sg);
-						sg->bounds().height = 20;
-						pnlParams->add(sg);
+						ColorPicker* cp = gui->create<ColorPicker>();
+						cp->color(n->color);
 
-						Spinner* sb = gui->spinner(
-							&n->color.b,
-							0.0f, 1.0f, " B", true, onChange, 0.01f
-						);
-						Proc(sb);
-						sb->bounds().height = 20;
-						pnlParams->add(sb);
+						((Widget*) cp)->onPress([=](int b, int x, int y) {
+							n->color = cp->color();
+						});
+						((Widget*) cp)->onMove([=](int x, int y) {
+							n->color = cp->color();
+						});
 
-						Spinner* sa = gui->spinner(
-							&n->color.a,
-							0.0f, 1.0f, " A", true, onChange, 0.01f
+						((Widget*) cp)->onRelease([=](int b, int x, int y) {
+							n->color = cp->color();
+							onChange();
+						});
+						pnlParams->add(cp);
+
+						Spinner* sv = gui->spinner(
+							&cp->value(),
+							0.0f, 1.0f, LL(" Value"), true, [=](){ n->color = cp->color(); onChange(); }, 0.01f
 						);
-						Proc(sa);
-						sa->bounds().height = 20;
-						pnlParams->add(sa);
+						Proc(sv);
+						sv->bounds().height = 20;
+						pnlParams->add(sv);
 					} break;
 					case NodeType::Image: {
 						ImageNode* n = (ImageNode*) node;
