@@ -42,3 +42,6 @@ Emboss (Edges);Relevo (Bordas)
 Warning;Atenção
 Your current project has not been saved, continue?;Seu projeto atual não foi salvo, deseja continuar?
 Out;Res
+Error;Erro
+Please remove all the connections before reloading the script.;Por favor remova todas as conexões antes de recarregar o script.
+Reload;Recarregar

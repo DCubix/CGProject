@@ -19,9 +19,6 @@
 #include "../json.hpp"
 using Json = nlohmann::json;
 
-// TODO: OpenCL Acceleration
-// #include "CL/cl.hpp"
-
 extern "C" {
 	#include "../openpnp-capture/include/openpnp-capture.h"
 }
@@ -47,7 +44,9 @@ enum class NodeType {
 	FishEye,
 	Mix,
 	Invert,
-	Distort
+	Distort,
+	Script,
+	NormalMap
 };
 
 class NodeSystem;
@@ -68,7 +67,6 @@ public:
 	virtual NodeType type() { return NodeType::None; }
 
 	virtual Color process(const PixelData& in, float x, float y) { return def; }
-	virtual PixelData gpuProcess(const PixelData& in, bool half) { return in; }
 
 	unsigned int id() const { return m_id; }
 
@@ -78,7 +76,7 @@ public:
 
 	unsigned int paramCount() const { return m_params.size(); }
 
-	PixelData process(const PixelData& in, bool half);
+	virtual PixelData process(const PixelData& in);
 	virtual void reset() {}
 
 protected:
@@ -161,18 +159,12 @@ public:
 
 	Connection* getConnection(unsigned int id) { return m_connections[id].get(); }
 
-	PixelData process(const PixelData& in, bool half = false);
+	PixelData process(const PixelData& in);
 
 	PixelData& cameraFrame() { return m_lastCamFrame; }
 	bool capturing() const { return m_capturing; }
 	bool hasFrame() const { return m_hasNewFrame; }
 	void hasFrame(bool v) { m_hasNewFrame = v; }
-
-	// cl::Program& program() { return m_program; }
-	// cl::Context& context() { return m_clContext; }
-	// cl::CommandQueue& queue() { return m_commandQueue; }
-
-	// bool useGPU() const { return m_useGPU; }
 
 private:
 	std::vector<unsigned int> getConnectionsLastToFirst(unsigned int start);
@@ -188,14 +180,6 @@ private:
 
 	std::mutex m_lock;
 	PixelData* m_imgIn;
-
-	// GPGPU
-	// cl::Platform m_clPlatform;
-	// cl::Device m_clDevice;
-	// cl::Context m_clContext;
-	// cl::Program m_program;
-	// cl::CommandQueue m_commandQueue;
-	// bool m_useGPU{ false };
 
 	// WebCam Capture
 	CapContext m_ctx{ nullptr };

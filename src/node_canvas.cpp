@@ -5,6 +5,7 @@ constexpr int textPad = 3;
 constexpr int GridSize = 8;
 
 #include "nodes/nodes.hpp"
+#include "nodes/scriptable_node.hpp"
 #include "localization.h"
 
 static bool hitsR(int x, int y, int bx, int by, int bw, int bh) {
@@ -144,6 +145,8 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Mix: txt = LL("Mix"); break;
 				case NodeType::Invert: txt = LL("Invert"); break;
 				case NodeType::Distort: txt = LL("Distort"); break;
+				case NodeType::NormalMap: txt = LL("N. Map"); break;
+				case NodeType::Script: txt = LL(((ScriptableNode*) node)->name); break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);
@@ -394,7 +397,9 @@ static const TypeMapEntry TypeMap[] = {
 	TM(FishEye),
 	TM(Convolute),
 	TM(Threshold),
-	TM(BrightnessContrast)
+	TM(BrightnessContrast),
+	TM(Script),
+	TM(NormalMap)
 };
 
 void NodeCanvas::load(const Json& json) {
@@ -428,7 +433,9 @@ void NodeCanvas::load(const Json& json) {
 				case NodeType::FishEye: node = create<FishEyeNode>(); break;
 				case NodeType::Convolute: node = create<ConvoluteNode>(); break;
 				case NodeType::Threshold: node = create<ThresholdNode>(); break;
-				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break; break;
+				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break;
+				case NodeType::Script: node = create<ScriptableNode>(); break;
+				case NodeType::NormalMap: node = create<NormalMapNode>(); break;
 			}
 
 			if (node != -1) {
@@ -472,6 +479,8 @@ void NodeCanvas::save(Json& json) {
 			case NodeType::Convolute: type = "Convolute"; break;
 			case NodeType::Threshold: type = "Threshold"; break;
 			case NodeType::BrightnessContrast: type = "BrightnessContrast"; break;
+			case NodeType::Script: type = "Script"; break;
+			case NodeType::NormalMap: type = "NormalMap"; break;
 		}
 		jnd["type"] = type;
 		nodes.push_back(jnd);

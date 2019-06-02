@@ -2,6 +2,7 @@
 #define NODES_HPP
 
 #include <algorithm>
+#include <array>
 
 #include "node_logic.h"
 #include "kernels.hpp"
@@ -634,6 +635,56 @@ public:
 	}
 
 	float strenght{ 0.02f };
+};
+
+class NormalMapNode : public Node {
+	using vec3 = std::array<float, 3>;
+public:
+	inline NormalMapNode() {
+		addParam("A");
+	}
+
+	inline float vlen(const vec3& v) {
+		return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	}
+
+	inline vec3 vnorm(const vec3& v) {
+		float ln = vlen(v);
+		return { v[0] / ln, v[1] / ln, v[2] / ln };
+	}
+
+	inline vec3 vcross(const vec3& a, const vec3& b) {
+		return {
+			a[1] * b[2] - a[2] * b[1],
+			a[2] * b[0] - a[0] * b[2],
+			a[0] * b[1] - a[1] * b[0]
+		};
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+
+		float s01 = luma(pa.get(ix - 1, iy));
+		float s21 = luma(pa.get(ix + 1, iy));
+		float s10 = luma(pa.get(ix, iy - 1));
+		float s12 = luma(pa.get(ix, iy + 1));
+
+		vec3 va = vnorm({ size, 0.0, s21 - s01 });
+		vec3 vb = vnorm({ 0.0, size, s12 - s10 });
+		vec3 vc = vcross(va, vb);
+		Color col;
+		col.r = vc[0] * 0.5f + 0.5f;
+		col.g = vc[1] * 0.5f + 0.5f;
+		col.b = vc[2] * 0.5f + 0.5f;
+		col.a = 1.0f;
+		return col;
+	}
+
+	inline virtual NodeType type() override { return NodeType::NormalMap; }
+
+	float size{ 2.0f };
 };
 
 #endif // NODES_HPP

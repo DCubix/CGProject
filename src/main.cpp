@@ -16,6 +16,7 @@
 #include "application.h"
 #include "nodes/node_logic.h"
 #include "nodes/nodes.hpp"
+#include "nodes/scriptable_node.hpp"
 #include "node_canvas.h"
 
 #include "filesystem.hpp"
@@ -297,6 +298,72 @@ public:
 						th->bounds().height = 20;
 						pnlParams->add(th);
 					} break;
+					case NodeType::Script: {
+						ScriptableNode* n = (ScriptableNode*) node;
+
+						Label* lblInfo = gui->create<Label>();
+						lblInfo->text(LL("File") + ": " + (n->fileName.empty() ? LL("<empty>") : n->fileName));
+						lblInfo->bounds().height = 80;
+						lblInfo->wordWrap(true);
+
+						Button* loadScp = gui->create<Button>();
+						loadScp->text(LL("Open") + "...");
+						loadScp->bounds().height = 20;
+
+						Button* reloadScp = gui->create<Button>();
+						reloadScp->text(LL("Reload"));
+						reloadScp->bounds().height = 20;
+
+						reloadScp->onClick([=](int b, int x, int y) {
+							if (!n->fileName.empty()) {
+								n->refresh();
+								process(imgResult, gui, int(spnWidth->value()), int(spnHeight->value()));
+								onChange();
+							}
+						});
+
+						loadScp->onClick([=](int b, int x, int y) {
+							if (!cnv->system()->getAllConnections(n->id()).empty()) {
+								osd::Dialog::message(
+											osd::MessageLevel::Error,
+											osd::MessageButtons::Ok,
+											LL("Error"),
+											LL("Please remove all the connections before reloading the script.")
+								);
+							} else {
+								auto ret = osd::Dialog::file(
+											osd::DialogAction::OpenFile,
+											".",
+											osd::Filters("Lua Script:lua")
+								);
+
+								if (ret.has_value() && fs::exists(fs::path(ret.value()))) {
+									fs::path rel = fs::relative(fs::path(ret.value()));
+									n->fileName = rel.string();
+									n->refresh();
+
+									lblInfo->text(LL("File") + ": " + (n->fileName.empty() ? LL("<empty>") : n->fileName));
+
+									process(imgResult, gui, int(spnWidth->value()), int(spnHeight->value()));
+									onChange();
+								}
+							}
+						});
+						pnlParams->add(loadScp);
+						pnlParams->add(reloadScp);
+						pnlParams->add(lblInfo);
+
+					} break;
+					case NodeType::NormalMap: {
+						NormalMapNode* n = (NormalMapNode*) node;
+						Spinner* rs = gui->spinner(
+							&n->size,
+							0.1f, 2.0f, LL(" Size"), true, onChange, 0.1f
+						);
+						Proc(rs);
+						rs->bounds().height = 20;
+						pnlParams->add(rs);
+					} break;
 					default: break;
 				}
 			} else {
@@ -324,6 +391,8 @@ public:
 				case 13: cnv->create<MixNode>(); break;
 				case 14: cnv->create<InvertNode>(); break;
 				case 15: cnv->create<DistortNode>(); break;
+//				case 16: cnv->create<ScriptableNode>(); break;
+				case 16: cnv->create<NormalMapNode>(); break;
 				default: break;
 			}
 			onChange();
@@ -429,7 +498,7 @@ public:
 	}
 
 	inline void process(ImageView* res, GUI* gui, int w, int h) {
-		PixelData img = cnv->system()->process(PixelData(w, h), false);
+		PixelData img = cnv->system()->process(PixelData(w, h));
 		if (result) {
 			result.reset();
 		}

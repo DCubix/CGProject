@@ -16,6 +16,9 @@ file(GLOB SRC
 	"src/nodes/*.hpp"
 )
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+find_package(Lua REQUIRED)
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -42,16 +45,13 @@ if(APPLE AND USE_OpenMP)
 	endif()
 endif()
 
-# find_package(OpenCL REQUIRED OpenCL)
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/GUI)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 
 file(COPY ${CMAKE_SOURCE_DIR}/locale DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${SRC})
-# OpenCL::OpenCL
-target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
+target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture Lua)
 
 if (CMAKE_DL_LIBS)
 	target_link_libraries(${PROJECT_NAME} PRIVATE 
