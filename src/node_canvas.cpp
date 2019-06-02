@@ -32,23 +32,23 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 	
 	// Grid
 	for (int y = b.y; y < b.y + b.height; y += GridSize) {
-		renderer.line(b.x, y, b.x + b.width, y, 196, 212, 209, 50);
+		renderer.line(b.x, y, b.x + b.width, y, 100, 100, 100);
 	}
 	for (int x = b.x; x < b.x + b.width; x += GridSize) {
-		renderer.line(x, b.y, x, b.y + b.height, 196, 212, 209, 50);
+		renderer.line(x, b.y, x, b.y + b.height, 100, 100, 100);
 	}
-	renderer.rect(b.x, b.y, b.width, b.height, 196, 212, 209, 50);
+	renderer.rect(b.x, b.y, b.width, b.height, 255, 255, 255, 60);
 	//
 
-	renderer.rect(b.x, b.y, b.width, b.height, 0, 0, 0, 80, true);
+	renderer.rect(b.x, b.y, b.width, b.height, 0, 0, 0, 60, true);
 
 	auto nodes = m_system->nodes();
 	std::sort(nodes.begin(), nodes.end(), [&](int a, int b) {
 		return m_gnodes[a].selected < m_gnodes[b].selected;
 	});
 
-	m_gnodes[0].x = b.width - 12;
-	m_gnodes[0].y = b.height / 2 - m_gnodes[0].height / 2;
+	m_gnodes[0].x = b.width - 40;
+	m_gnodes[0].y = 20;
 
 	for (int nid : nodes) {
 		GNode& gnode = m_gnodes[nid];
@@ -72,43 +72,29 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 		connSrcY -= 2;
 		connDestY -= 2;
 
-		if (conn->src != conn->dest) {
-			if (connSrcX > connDestX) {
-				int mid = (connDestY - connSrcY) / 2;
-				renderer.curve(
-					connSrcX, connSrcY,
-					connSrcX + 50, connSrcY + mid,
-					connDestX - 50, connDestY - mid,
-					connDestX, connDestY,
-					196, 212, 209
-				);
-			} else {
-				int mid = (connDestX - connSrcX) / 2;
-				renderer.curve(
-					connSrcX, connSrcY,
-					connSrcX + mid, connSrcY,
-					connSrcX + mid, connDestY,
-					connDestX, connDestY,
-					196, 212, 209
-				);
-			}
-
-			int mx = (connDestX + connSrcX) / 2;
-			int my = (connDestY + connSrcY) / 2;
-			renderer.roundRect(mx - 3, my - 3, 6, 6, 6, 196, 212, 209);
-		} else {
-			const int rad = 10;
-			const int w = rad * 3;
-			const int nw = std::abs(connDestX - connSrcX) + w - 1;
-			renderer.roundRect(
-				connDestX - w / 2, connDestY,
-				nw, dest.height - 16, rad,
+		if (connSrcX > connDestX) {
+			int mid = (connDestY - connSrcY) / 2;
+			renderer.curve(
+				connSrcX, connSrcY,
+				connSrcX + 50, connSrcY + mid,
+				connDestX - 50, connDestY - mid,
+				connDestX, connDestY,
 				196, 212, 209
 			);
-			int mx = (connDestX + connSrcX) / 2;
-			int my = connDestY + dest.height - 16;
-			renderer.roundRect(mx - 3, my - 3, 6, 6, 6, 196, 212, 209);
+		} else {
+			int mid = (connDestX - connSrcX) / 2;
+			renderer.curve(
+				connSrcX, connSrcY,
+				connSrcX + mid, connSrcY,
+				connSrcX + mid, connDestY,
+				connDestX, connDestY,
+				196, 212, 209
+			);
 		}
+
+		int mx = (connDestX + connSrcX) / 2;
+		int my = (connDestY + connSrcY) / 2;
+		renderer.roundRect(mx - 3, my - 3, 6, 6, 6, 196, 212, 209, 255, true);
 	}
 
 	for (int nid : nodes) {
@@ -117,23 +103,26 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 		int nx = gnode.x + b.x;
 		int ny = gnode.y + b.y;
 
-		int ngx = ::floor(gnode.x / GridSize) * GridSize + b.x;
-		int ngy = ::floor(gnode.y / GridSize) * GridSize + b.y;
+		int ngx = std::floor(gnode.x / GridSize) * GridSize + b.x;
+		int ngy = std::floor(gnode.y / GridSize) * GridSize + b.y;
 
 		if (node->type() != NodeType::Output) {
 			if (gnode.selected && m_state == Moving) {
 				renderer.rect(ngx, ngy, NodeWidth, gnode.height, 255, 255, 255, 50, true);
 			}
-			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 3, 0.8f);
+			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 3, 0.5f);
 			renderer.pushClipping(nx + 1, ny + 1, NodeWidth - 2, gnode.height - 2);
 			renderer.rect(nx + 1, ny + 1, NodeWidth - 2, 16, 0, 0, 0, 80, true);
 			if (node->type() == NodeType::Color) {
 				ColorNode* n = (ColorNode*) node;
-				renderer.rect(nx + 4, ny + 20, 16, 9,
-							  n->color.r * 255.0f,
-							  n->color.g * 255.0f,
-							  n->color.b * 255.0f,
-							  255, true);
+				for (int i = 0; i < 8; i++) {
+					renderer.textSmall(nx + 4 + i, ny + 20, "\x7",
+									   n->color.r * 255.0f,
+									   n->color.g * 255.0f,
+									   n->color.b * 255.0f,
+									   255
+					);
+				}
 			}
 
 			std::string txt = "";
@@ -173,12 +162,12 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			if (gnode.selected) {
 				renderer.rect(nx + 2, ny + 2, NodeWidth - 4, gnode.height - 4, 255, 255, 255, 50, true);
 			}
-
-			//renderer.textSmall(nx + 4, py + 4, std::to_string(node->level()), 255, 0, 0, 255);
 		} else {
-			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 2, 0.2f);
+			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 2, 0.5f);
 			int py = inY(0) + ny;
 			renderer.textSmall(nx + textPad, py + textPad, "\x9", 0, 0, 0, 200);
+			renderer.textSmall(nx + textPad + 8, py + textPad, "Out", 0, 0, 0, 200);
+
 		}
 	}
 
