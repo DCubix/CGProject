@@ -7,7 +7,7 @@ R"(
 		<button name="btnSaveImg" text="Save Image" width="120" />
 	</panel>
 	<panel param="bottom" layout="flow" height="16" padding="2" background="false">
-		<label text="Diego Lopes - diego95lopes@gmail.com - v1.0.5" width="480" height="14" />
+		<label text="Diego Lopes - diego95lopes@gmail.com - v1.1.0" width="480" height="14" />
 	</panel>
 	<splitview param="center" divider="200" orientation="vertical">
 		<panel layout="border" background="false" padding="0">
