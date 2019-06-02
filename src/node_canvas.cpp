@@ -151,7 +151,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			for (int i = 0; i < node->paramCount(); i++) {
 				int py = inY(i) + ny;
 				renderer.textSmall(nx + textPad, py + textPad, "\x9", 0, 0, 0, 200);
-				renderer.textSmall(nx + textPad + 8, py + textPad, node->paramName(i), 0, 0, 0, 200);
+				renderer.textSmall(nx + textPad + 8, py + textPad, LL(node->paramName(i)), 0, 0, 0, 200);
 			}
 
 			renderer.popClipping();
@@ -166,7 +166,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			renderer.flatPanel(nx, ny, NodeWidth, gnode.height, 0, 2, 0.5f);
 			int py = inY(0) + ny;
 			renderer.textSmall(nx + textPad, py + textPad, "\x9", 0, 0, 0, 200);
-			renderer.textSmall(nx + textPad + 8, py + textPad, "Out", 0, 0, 0, 200);
+			renderer.textSmall(nx + textPad + 8, py + textPad, LL("Out"), 0, 0, 0, 200);
 
 		}
 	}
