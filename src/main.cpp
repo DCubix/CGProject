@@ -106,7 +106,7 @@ public:
 
 						((Widget*) cp)->onRelease([=](int b, int x, int y) {
 							n->color = cp->color();
-							onChange();
+							processImage(b, x, y);
 						});
 						pnlParams->add(cp);
 
