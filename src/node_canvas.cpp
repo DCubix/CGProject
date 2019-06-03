@@ -146,7 +146,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Invert: txt = LL("Invert"); break;
 				case NodeType::Distort: txt = LL("Distort"); break;
 				case NodeType::NormalMap: txt = LL("N. Map"); break;
-				case NodeType::Script: txt = LL(((ScriptableNode*) node)->name); break;
+				// case NodeType::Script: txt = LL(((ScriptableNode*) node)->name); break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);
@@ -434,7 +434,7 @@ void NodeCanvas::load(const Json& json) {
 				case NodeType::Convolute: node = create<ConvoluteNode>(); break;
 				case NodeType::Threshold: node = create<ThresholdNode>(); break;
 				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break;
-				case NodeType::Script: node = create<ScriptableNode>(); break;
+				// case NodeType::Script: node = create<ScriptableNode>(); break;
 				case NodeType::NormalMap: node = create<NormalMapNode>(); break;
 			}
 

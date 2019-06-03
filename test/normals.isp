@@ -1,1 +1,1 @@
-{"conns":[{"dest":0,"destParam":0,"src":1},{"dest":1,"destParam":0,"src":2}],"nodes":[{"type":"NormalMap","x":296,"y":32},{"fileName":"..\\test\\perlin_greyscale.png","type":"Image","x":120,"y":24}]}
+{"conns":[{"dest":0,"destParam":0,"src":1},{"dest":1,"destParam":0,"src":2}],"nodes":[{"type":"NormalMap","x":296,"y":32},{"fileName":"../test/twirl.png","type":"Image","x":144,"y":72}]}

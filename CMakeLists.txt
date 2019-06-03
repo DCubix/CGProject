@@ -18,7 +18,7 @@ file(GLOB SRC
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(Lua REQUIRED)
+# find_package(Lua REQUIRED)
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -51,7 +51,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/openpnp-capture)
 file(COPY ${CMAKE_SOURCE_DIR}/locale DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture Lua)
+target_link_libraries(${PROJECT_NAME} PRIVATE gui openpnp-capture)
 
 if (CMAKE_DL_LIBS)
 	target_link_libraries(${PROJECT_NAME} PRIVATE 
