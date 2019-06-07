@@ -11,7 +11,7 @@ CGProject - Image Studio
 - Boost 1.70.0 (https://www.boost.org)
 
 
-### Intruções
+### Instruções
 - Clone o repositório (ou faça o download to ZIP)
     ```bash
     git clone https://github.com/DCubix/CGProject
