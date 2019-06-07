@@ -81,6 +81,8 @@ void NodeSystem::startCapture() {
 			// Start capturing frames
 			m_timerThread = std::thread([](CapContext ctx, int stream, NodeSystem* sys) {
 				while (true) {
+					if (!sys->capturing()) break;
+
 					if (Cap_hasNewFrame(ctx, stream) == 1) {
 						std::vector<unsigned char> pixels;
 						pixels.resize(sys->cameraFrame().width() * sys->cameraFrame().height() * 3);
@@ -113,6 +115,7 @@ void NodeSystem::stopCapture() {
 	if (m_ctx) {
 		m_timerThread.~thread();
 		Cap_releaseContext(m_ctx);
+		m_ctx = nullptr;
 		m_capturing = false;
 	}
 }
