@@ -1,1 +1,0 @@
-{"conns":[{"dest":2,"destParam":0,"src":3},{"dest":2,"destParam":1,"src":1},{"dest":0,"destParam":0,"src":2}],"nodes":[{"fileName":"..\\test\\test.lua","type":"Script","x":176,"y":104},{"strenght":0.019999999552965164,"type":"Distort","x":312,"y":56},{"fileName":"..\\test\\test.jpg","type":"Image","x":168,"y":48}]}

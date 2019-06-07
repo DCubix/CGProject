@@ -681,6 +681,14 @@ public:
 		return col;
 	}
 
+	virtual void load(const Json& json) override {
+		size = json.value("size", 2.0f);
+	}
+
+	virtual void save(Json& json) override {
+		json["size"] = size;
+	}
+
 	inline virtual NodeType type() override { return NodeType::NormalMap; }
 
 	float size{ 2.0f };
