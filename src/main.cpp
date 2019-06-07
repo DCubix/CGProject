@@ -393,6 +393,7 @@ public:
 				case 15: cnv->create<DistortNode>(); break;
 //				case 16: cnv->create<ScriptableNode>(); break;
 				case 16: cnv->create<NormalMapNode>(); break;
+				case 17: cnv->create<GrayscaleNode>(); break;
 				default: break;
 			}
 			onChange();

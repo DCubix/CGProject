@@ -32,6 +32,7 @@ R"(
 					<item>Distort</item>
 					<!--<item>Script</item>-->
 					<item>Normal Map</item>
+					<item>Grayscale</item>
 				</list>
 				<panel layout="flow" height="20" background="false" padding="0" param="bottom">
 					<button name="btnAdd" text="+" width="20" />

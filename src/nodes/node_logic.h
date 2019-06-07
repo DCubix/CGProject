@@ -46,7 +46,8 @@ enum class NodeType {
 	Invert,
 	Distort,
 	Script,
-	NormalMap
+	NormalMap,
+	Grayscale
 };
 
 class NodeSystem;

@@ -687,4 +687,21 @@ public:
 	float size{ 2.0f };
 };
 
+class GrayscaleNode : public Node {
+public:
+	inline GrayscaleNode() {
+		addParam("A");
+	}
+
+	inline virtual Color process(const PixelData& in, float x, float y) override {
+		auto&& pa = param(0).value;
+		int ix = int((pa.width()+0.5f) * x);
+		int iy = int((pa.height()+0.5f) * y);
+		float lm = luma(pa.get(ix, iy));
+		return { lm, lm, lm, 1.0f };
+	}
+
+	inline virtual NodeType type() override { return NodeType::Grayscale; }
+};
+
 #endif // NODES_HPP

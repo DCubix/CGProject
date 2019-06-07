@@ -146,6 +146,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Invert: txt = LL("Invert"); break;
 				case NodeType::Distort: txt = LL("Distort"); break;
 				case NodeType::NormalMap: txt = LL("N. Map"); break;
+				case NodeType::Grayscale: txt = LL("G. Scale"); break;
 				// case NodeType::Script: txt = LL(((ScriptableNode*) node)->name); break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
@@ -399,7 +400,8 @@ static const TypeMapEntry TypeMap[] = {
 	TM(Threshold),
 	TM(BrightnessContrast),
 	TM(Script),
-	TM(NormalMap)
+	TM(NormalMap),
+	TM(Grayscale)
 };
 
 void NodeCanvas::load(const Json& json) {
@@ -436,6 +438,7 @@ void NodeCanvas::load(const Json& json) {
 				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break;
 				// case NodeType::Script: node = create<ScriptableNode>(); break;
 				case NodeType::NormalMap: node = create<NormalMapNode>(); break;
+				case NodeType::Grayscale: node = create<GrayscaleNode>(); break;
 			}
 
 			if (node != -1) {
@@ -481,6 +484,7 @@ void NodeCanvas::save(Json& json) {
 			case NodeType::BrightnessContrast: type = "BrightnessContrast"; break;
 			case NodeType::Script: type = "Script"; break;
 			case NodeType::NormalMap: type = "NormalMap"; break;
+			case NodeType::Grayscale: type = "Grayscale"; break;
 		}
 		jnd["type"] = type;
 		nodes.push_back(jnd);
