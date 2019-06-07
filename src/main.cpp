@@ -118,6 +118,12 @@ public:
 						sv->bounds().height = 20;
 						pnlParams->add(sv);
 					} break;
+					case NodeType::WebCam: {
+						spnWidth->value(320);
+						spnHeight->value(240);
+						process(imgResult, gui, int(spnWidth->value()), int(spnHeight->value()));
+						onChange();
+					} break;
 					case NodeType::Image: {
 						ImageNode* n = (ImageNode*) node;
 

@@ -31,7 +31,7 @@ File;Arquivo
  Size; Tamanho
 Blur (Gaussian);Borrar (Gaussiano)
 Blur (Box);Borrar (Caixa)
-Sharpen;Agucar
+Sharpen;Aguçar
 Edges (Gauss);Bordas (Gauss)
 Edges (Laplace);Bordas (Laplace)
 Emboss;Relevo
