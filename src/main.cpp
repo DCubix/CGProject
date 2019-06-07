@@ -445,7 +445,9 @@ public:
 			);
 
 			if (ret.has_value()) {
-				fileSaveAs(ret.value());
+				fs::path fp(ret.value());
+				fp.replace_extension(".isp");
+				fileSaveAs(fp.string());
 			}
 		};
 
