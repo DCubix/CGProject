@@ -130,7 +130,7 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 			switch (node->type()) {
 				default: break;
 				case NodeType::Add: txt = LL("Add"); break;
-				case NodeType::Multiply: txt = "Mult."; break;
+				case NodeType::Multiply: txt = LL("Mult."); break;
 				case NodeType::Color: txt = LL("Color"); break;
 				case NodeType::Erode: txt = LL("Erode"); break;
 				case NodeType::Dilate: txt = LL("Dilate"); break;
