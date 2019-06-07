@@ -30,7 +30,6 @@ R"(
 					<item>Mix</item>
 					<item>Invert</item>
 					<item>Distort</item>
-					<!--<item>Script</item>-->
 					<item>Normal Map</item>
 					<item>Grayscale</item>
 				</list>

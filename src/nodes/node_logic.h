@@ -45,7 +45,6 @@ enum class NodeType {
 	Mix,
 	Invert,
 	Distort,
-	Script,
 	NormalMap,
 	Grayscale
 };

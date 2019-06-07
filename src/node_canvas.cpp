@@ -5,8 +5,9 @@ constexpr int textPad = 3;
 constexpr int GridSize = 8;
 
 #include "nodes/nodes.hpp"
-#include "nodes/scriptable_node.hpp"
 #include "localization.h"
+
+#include <algorithm>
 
 static bool hitsR(int x, int y, int bx, int by, int bw, int bh) {
 	return x > bx &&
@@ -147,7 +148,6 @@ void NodeCanvas::onDraw(Renderer& renderer) {
 				case NodeType::Distort: txt = LL("Distort"); break;
 				case NodeType::NormalMap: txt = LL("N. Map"); break;
 				case NodeType::Grayscale: txt = LL("G. Scale"); break;
-				// case NodeType::Script: txt = LL(((ScriptableNode*) node)->name); break;
 			}
 			renderer.text(nx + 5, ny + 5, txt, 0, 0, 0, 128);
 			renderer.text(nx + 4, ny + 4, txt, 255, 255, 255, 180);
@@ -399,7 +399,6 @@ static const TypeMapEntry TypeMap[] = {
 	TM(Convolute),
 	TM(Threshold),
 	TM(BrightnessContrast),
-	TM(Script),
 	TM(NormalMap),
 	TM(Grayscale)
 };
@@ -436,7 +435,6 @@ void NodeCanvas::load(const Json& json) {
 				case NodeType::Convolute: node = create<ConvoluteNode>(); break;
 				case NodeType::Threshold: node = create<ThresholdNode>(); break;
 				case NodeType::BrightnessContrast: node = create<BrightnessContrastNode>(); break;
-				// case NodeType::Script: node = create<ScriptableNode>(); break;
 				case NodeType::NormalMap: node = create<NormalMapNode>(); break;
 				case NodeType::Grayscale: node = create<GrayscaleNode>(); break;
 			}
@@ -482,7 +480,6 @@ void NodeCanvas::save(Json& json) {
 			case NodeType::Convolute: type = "Convolute"; break;
 			case NodeType::Threshold: type = "Threshold"; break;
 			case NodeType::BrightnessContrast: type = "BrightnessContrast"; break;
-			case NodeType::Script: type = "Script"; break;
 			case NodeType::NormalMap: type = "NormalMap"; break;
 			case NodeType::Grayscale: type = "Grayscale"; break;
 		}

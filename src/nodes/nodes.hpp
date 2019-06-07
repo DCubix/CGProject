@@ -19,22 +19,6 @@ public:
 		return color;
 	}
 
-	// inline virtual PixelData gpuProcess(const PixelData& in, bool half) override {
-	// 	const size_t sz = in.width() * in.height();
-	// 	cl::Buffer result(m_system->context(), CL_MEM_WRITE_ONLY, sz);
-	// 	cl::Kernel k = cl::Kernel(m_system->program(), "ColorNode");
-
-	// 	float col[] = { color.r, color.g, color.b, color.a };
-	// 	k.setArg(0, sizeof(float) * 4, col);
-	// 	k.setArg(1, result);
-	// 	m_system->queue().enqueueNDRangeKernel(k, cl::NullRange, cl::NDRange(sz), cl::NullRange);
-	// 	m_system->queue().finish();
-
-	// 	PixelData out(in.width(), in.height());
-	// 	m_system->queue().enqueueReadBuffer(result, CL_TRUE, 0, out.data().size(), &out.data()[0]);
-	// 	return out;
-	// }
-
 	inline virtual NodeType type() override { return NodeType::Color; }
 
 	virtual void load(const Json& json) override {
@@ -673,6 +657,7 @@ public:
 		vec3 va = vnorm({ size, 0.0, s21 - s01 });
 		vec3 vb = vnorm({ 0.0, size, s12 - s10 });
 		vec3 vc = vcross(va, vb);
+		
 		Color col;
 		col.r = vc[0] * 0.5f + 0.5f;
 		col.g = vc[1] * 0.5f + 0.5f;
